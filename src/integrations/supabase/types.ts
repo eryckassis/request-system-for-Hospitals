@@ -14,16 +14,202 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admins: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email: string
+          id: string
+          name: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      sectors: {
+        Row: {
+          created_at: string
+          department: Database["public"]["Enums"]["department"]
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          department: Database["public"]["Enums"]["department"]
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          department?: Database["public"]["Enums"]["department"]
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      tickets: {
+        Row: {
+          created_at: string
+          department: Database["public"]["Enums"]["department"]
+          description: string
+          id: string
+          images: string[]
+          resolution_notes: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          resolved_successfully: boolean | null
+          sector_id: string
+          status: Database["public"]["Enums"]["ticket_status"]
+          title: string
+          updated_at: string
+          user_id: string | null
+          user_name_snapshot: string
+        }
+        Insert: {
+          created_at?: string
+          department: Database["public"]["Enums"]["department"]
+          description: string
+          id?: string
+          images?: string[]
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          resolved_successfully?: boolean | null
+          sector_id: string
+          status?: Database["public"]["Enums"]["ticket_status"]
+          title: string
+          updated_at?: string
+          user_id?: string | null
+          user_name_snapshot: string
+        }
+        Update: {
+          created_at?: string
+          department?: Database["public"]["Enums"]["department"]
+          description?: string
+          id?: string
+          images?: string[]
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          resolved_successfully?: boolean | null
+          sector_id?: string
+          status?: Database["public"]["Enums"]["ticket_status"]
+          title?: string
+          updated_at?: string
+          user_id?: string | null
+          user_name_snapshot?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickets_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "admins"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickets_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "sectors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          sector_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          sector_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          sector_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "sectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_manage_department: {
+        Args: {
+          _dept: Database["public"]["Enums"]["department"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_super: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "super" | "ti" | "manutencao"
+      department: "ti" | "manutencao"
+      ticket_status: "pending" | "in_progress" | "resolved"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +336,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["super", "ti", "manutencao"],
+      department: ["ti", "manutencao"],
+      ticket_status: ["pending", "in_progress", "resolved"],
+    },
   },
 } as const
