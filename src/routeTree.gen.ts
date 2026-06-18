@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChamadosNovoRouteImport } from './routes/chamados.novo'
+import { Route as ChamadosIdRouteImport } from './routes/chamados.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,30 +23,39 @@ const ChamadosNovoRoute = ChamadosNovoRouteImport.update({
   path: '/chamados/novo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChamadosIdRoute = ChamadosIdRouteImport.update({
+  id: '/chamados/$id',
+  path: '/chamados/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/chamados/$id': typeof ChamadosIdRoute
   '/chamados/novo': typeof ChamadosNovoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/chamados/$id': typeof ChamadosIdRoute
   '/chamados/novo': typeof ChamadosNovoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/chamados/$id': typeof ChamadosIdRoute
   '/chamados/novo': typeof ChamadosNovoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/chamados/novo'
+  fullPaths: '/' | '/chamados/$id' | '/chamados/novo'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/chamados/novo'
-  id: '__root__' | '/' | '/chamados/novo'
+  to: '/' | '/chamados/$id' | '/chamados/novo'
+  id: '__root__' | '/' | '/chamados/$id' | '/chamados/novo'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ChamadosIdRoute: typeof ChamadosIdRoute
   ChamadosNovoRoute: typeof ChamadosNovoRoute
 }
 
@@ -65,11 +75,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChamadosNovoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chamados/$id': {
+      id: '/chamados/$id'
+      path: '/chamados/$id'
+      fullPath: '/chamados/$id'
+      preLoaderRoute: typeof ChamadosIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ChamadosIdRoute: ChamadosIdRoute,
   ChamadosNovoRoute: ChamadosNovoRoute,
 }
 export const routeTree = rootRouteImport
