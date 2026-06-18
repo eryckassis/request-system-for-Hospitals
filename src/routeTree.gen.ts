@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChamadosNovoRouteImport } from './routes/chamados.novo'
 import { Route as ChamadosIdRouteImport } from './routes/chamados.$id'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,33 +29,42 @@ const ChamadosIdRoute = ChamadosIdRouteImport.update({
   path: '/chamados/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin/login': typeof AdminLoginRoute
   '/chamados/$id': typeof ChamadosIdRoute
   '/chamados/novo': typeof ChamadosNovoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/login': typeof AdminLoginRoute
   '/chamados/$id': typeof ChamadosIdRoute
   '/chamados/novo': typeof ChamadosNovoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin/login': typeof AdminLoginRoute
   '/chamados/$id': typeof ChamadosIdRoute
   '/chamados/novo': typeof ChamadosNovoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/chamados/$id' | '/chamados/novo'
+  fullPaths: '/' | '/admin/login' | '/chamados/$id' | '/chamados/novo'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/chamados/$id' | '/chamados/novo'
-  id: '__root__' | '/' | '/chamados/$id' | '/chamados/novo'
+  to: '/' | '/admin/login' | '/chamados/$id' | '/chamados/novo'
+  id: '__root__' | '/' | '/admin/login' | '/chamados/$id' | '/chamados/novo'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   ChamadosIdRoute: typeof ChamadosIdRoute
   ChamadosNovoRoute: typeof ChamadosNovoRoute
 }
@@ -82,11 +92,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChamadosIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminLoginRoute: AdminLoginRoute,
   ChamadosIdRoute: ChamadosIdRoute,
   ChamadosNovoRoute: ChamadosNovoRoute,
 }
