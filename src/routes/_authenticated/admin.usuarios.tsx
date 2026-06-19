@@ -153,7 +153,7 @@ function UsersPage() {
                 <tr key={u.id} className="border-t border-border">
                   <td className="px-4 py-3">{u.name}</td>
                   <td className="px-4 py-3 text-muted-foreground">
-                    {sectorMap.get(u.sector_id)?.name ?? "—"}
+                    {(u.sector_id && sectorMap.get(u.sector_id)?.name) || "—"}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button
