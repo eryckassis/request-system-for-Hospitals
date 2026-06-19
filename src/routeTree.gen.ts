@@ -9,11 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChamadosNovoRouteImport } from './routes/chamados.novo'
 import { Route as ChamadosIdRouteImport } from './routes/chamados.$id'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
+import { Route as AuthenticatedAdminSetoresRouteImport } from './routes/_authenticated/admin.setores'
+import { Route as AuthenticatedAdminChamadosIdRouteImport } from './routes/_authenticated/admin.chamados.$id'
 
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -34,36 +44,108 @@ const AdminLoginRoute = AdminLoginRouteImport.update({
   path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminUsuariosRoute =
+  AuthenticatedAdminUsuariosRouteImport.update({
+    id: '/usuarios',
+    path: '/usuarios',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminSetoresRoute =
+  AuthenticatedAdminSetoresRouteImport.update({
+    id: '/setores',
+    path: '/setores',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminChamadosIdRoute =
+  AuthenticatedAdminChamadosIdRouteImport.update({
+    id: '/chamados/$id',
+    path: '/chamados/$id',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/chamados/$id': typeof ChamadosIdRoute
   '/chamados/novo': typeof ChamadosNovoRoute
+  '/admin/setores': typeof AuthenticatedAdminSetoresRoute
+  '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/chamados/$id': typeof AuthenticatedAdminChamadosIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin/login': typeof AdminLoginRoute
   '/chamados/$id': typeof ChamadosIdRoute
   '/chamados/novo': typeof ChamadosNovoRoute
+  '/admin/setores': typeof AuthenticatedAdminSetoresRoute
+  '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/chamados/$id': typeof AuthenticatedAdminChamadosIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/chamados/$id': typeof ChamadosIdRoute
   '/chamados/novo': typeof ChamadosNovoRoute
+  '/_authenticated/admin/setores': typeof AuthenticatedAdminSetoresRoute
+  '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/chamados/$id': typeof AuthenticatedAdminChamadosIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin/login' | '/chamados/$id' | '/chamados/novo'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/admin/login'
+    | '/chamados/$id'
+    | '/chamados/novo'
+    | '/admin/setores'
+    | '/admin/usuarios'
+    | '/admin/'
+    | '/admin/chamados/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin/login' | '/chamados/$id' | '/chamados/novo'
-  id: '__root__' | '/' | '/admin/login' | '/chamados/$id' | '/chamados/novo'
+  to:
+    | '/'
+    | '/admin/login'
+    | '/chamados/$id'
+    | '/chamados/novo'
+    | '/admin/setores'
+    | '/admin/usuarios'
+    | '/admin'
+    | '/admin/chamados/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/_authenticated/admin'
+    | '/admin/login'
+    | '/chamados/$id'
+    | '/chamados/novo'
+    | '/_authenticated/admin/setores'
+    | '/_authenticated/admin/usuarios'
+    | '/_authenticated/admin/'
+    | '/_authenticated/admin/chamados/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AdminLoginRoute: typeof AdminLoginRoute
   ChamadosIdRoute: typeof ChamadosIdRoute
   ChamadosNovoRoute: typeof ChamadosNovoRoute
@@ -71,6 +153,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -99,11 +188,75 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/usuarios': {
+      id: '/_authenticated/admin/usuarios'
+      path: '/usuarios'
+      fullPath: '/admin/usuarios'
+      preLoaderRoute: typeof AuthenticatedAdminUsuariosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/setores': {
+      id: '/_authenticated/admin/setores'
+      path: '/setores'
+      fullPath: '/admin/setores'
+      preLoaderRoute: typeof AuthenticatedAdminSetoresRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/chamados/$id': {
+      id: '/_authenticated/admin/chamados/$id'
+      path: '/chamados/$id'
+      fullPath: '/admin/chamados/$id'
+      preLoaderRoute: typeof AuthenticatedAdminChamadosIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminSetoresRoute: typeof AuthenticatedAdminSetoresRoute
+  AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminChamadosIdRoute: typeof AuthenticatedAdminChamadosIdRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminSetoresRoute: AuthenticatedAdminSetoresRoute,
+  AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminChamadosIdRoute: AuthenticatedAdminChamadosIdRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AdminLoginRoute: AdminLoginRoute,
   ChamadosIdRoute: ChamadosIdRoute,
   ChamadosNovoRoute: ChamadosNovoRoute,
