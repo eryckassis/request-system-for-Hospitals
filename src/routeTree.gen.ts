@@ -18,6 +18,8 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
 import { Route as AuthenticatedAdminSetoresRouteImport } from './routes/_authenticated/admin.setores'
+import { Route as AuthenticatedAdminRelatoriosRouteImport } from './routes/_authenticated/admin.relatorios'
+import { Route as AuthenticatedAdminConfiguracoesRouteImport } from './routes/_authenticated/admin.configuracoes'
 import { Route as AuthenticatedAdminChamadosIdRouteImport } from './routes/_authenticated/admin.chamados.$id'
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -66,6 +68,18 @@ const AuthenticatedAdminSetoresRoute =
     path: '/setores',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminRelatoriosRoute =
+  AuthenticatedAdminRelatoriosRouteImport.update({
+    id: '/relatorios',
+    path: '/relatorios',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminConfiguracoesRoute =
+  AuthenticatedAdminConfiguracoesRouteImport.update({
+    id: '/configuracoes',
+    path: '/configuracoes',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminChamadosIdRoute =
   AuthenticatedAdminChamadosIdRouteImport.update({
     id: '/chamados/$id',
@@ -79,6 +93,8 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/chamados/$id': typeof ChamadosIdRoute
   '/chamados/novo': typeof ChamadosNovoRoute
+  '/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
+  '/admin/relatorios': typeof AuthenticatedAdminRelatoriosRoute
   '/admin/setores': typeof AuthenticatedAdminSetoresRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -89,6 +105,8 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/chamados/$id': typeof ChamadosIdRoute
   '/chamados/novo': typeof ChamadosNovoRoute
+  '/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
+  '/admin/relatorios': typeof AuthenticatedAdminRelatoriosRoute
   '/admin/setores': typeof AuthenticatedAdminSetoresRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -102,6 +120,8 @@ export interface FileRoutesById {
   '/admin/login': typeof AdminLoginRoute
   '/chamados/$id': typeof ChamadosIdRoute
   '/chamados/novo': typeof ChamadosNovoRoute
+  '/_authenticated/admin/configuracoes': typeof AuthenticatedAdminConfiguracoesRoute
+  '/_authenticated/admin/relatorios': typeof AuthenticatedAdminRelatoriosRoute
   '/_authenticated/admin/setores': typeof AuthenticatedAdminSetoresRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -115,6 +135,8 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/chamados/$id'
     | '/chamados/novo'
+    | '/admin/configuracoes'
+    | '/admin/relatorios'
     | '/admin/setores'
     | '/admin/usuarios'
     | '/admin/'
@@ -125,6 +147,8 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/chamados/$id'
     | '/chamados/novo'
+    | '/admin/configuracoes'
+    | '/admin/relatorios'
     | '/admin/setores'
     | '/admin/usuarios'
     | '/admin'
@@ -137,6 +161,8 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/chamados/$id'
     | '/chamados/novo'
+    | '/_authenticated/admin/configuracoes'
+    | '/_authenticated/admin/relatorios'
     | '/_authenticated/admin/setores'
     | '/_authenticated/admin/usuarios'
     | '/_authenticated/admin/'
@@ -216,6 +242,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSetoresRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/relatorios': {
+      id: '/_authenticated/admin/relatorios'
+      path: '/relatorios'
+      fullPath: '/admin/relatorios'
+      preLoaderRoute: typeof AuthenticatedAdminRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/configuracoes': {
+      id: '/_authenticated/admin/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/admin/configuracoes'
+      preLoaderRoute: typeof AuthenticatedAdminConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/chamados/$id': {
       id: '/_authenticated/admin/chamados/$id'
       path: '/chamados/$id'
@@ -227,6 +267,8 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminConfiguracoesRoute: typeof AuthenticatedAdminConfiguracoesRoute
+  AuthenticatedAdminRelatoriosRoute: typeof AuthenticatedAdminRelatoriosRoute
   AuthenticatedAdminSetoresRoute: typeof AuthenticatedAdminSetoresRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -234,6 +276,8 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminConfiguracoesRoute: AuthenticatedAdminConfiguracoesRoute,
+  AuthenticatedAdminRelatoriosRoute: AuthenticatedAdminRelatoriosRoute,
   AuthenticatedAdminSetoresRoute: AuthenticatedAdminSetoresRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
@@ -264,13 +308,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -86,18 +86,32 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             );
           })}
           {admin.isSuper && (
-            <Link
-              to="/admin/configuracoes"
-              className={cn(
-                "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
-                pathname.startsWith("/admin/configuracoes")
-                  ? "bg-surface-2 text-foreground"
-                  : "text-muted-foreground hover:bg-surface-2/60 hover:text-foreground",
-              )}
-            >
-              <Settings className="size-4" />
-              Configurações
-            </Link>
+            <>
+              <Link
+                to="/admin/relatorios"
+                className={cn(
+                  "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
+                  pathname.startsWith("/admin/relatorios")
+                    ? "bg-surface-2 text-foreground"
+                    : "text-muted-foreground hover:bg-surface-2/60 hover:text-foreground",
+                )}
+              >
+                <FileText className="size-4" />
+                Relatórios
+              </Link>
+              <Link
+                to="/admin/configuracoes"
+                className={cn(
+                  "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
+                  pathname.startsWith("/admin/configuracoes")
+                    ? "bg-surface-2 text-foreground"
+                    : "text-muted-foreground hover:bg-surface-2/60 hover:text-foreground",
+                )}
+              >
+                <Settings className="size-4" />
+                Configurações
+              </Link>
+            </>
           )}
         </nav>
 
