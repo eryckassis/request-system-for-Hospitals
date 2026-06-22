@@ -90,7 +90,7 @@ function UsersPage() {
   };
 
   return (
-    <div ref={ref} className="px-8 py-8 max-w-4xl mx-auto">
+    <div ref={ref} className="px-4 md:px-8 py-6 md:py-8 max-w-4xl mx-auto">
       <h1 className="text-3xl font-semibold tracking-tight">Usuários</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Cadastre as pessoas vinculadas aos setores.
