@@ -1,3 +1,5 @@
+/* eslint-disable prettier/prettier */
+// eslint-disable-next-line prettier/prettier
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Monitor, Wrench, ArrowRight, ShieldCheck } from "lucide-react";
 import { usePageEnter, buttonHoverHandlers } from "@/hooks/use-gsap";
@@ -29,10 +31,20 @@ function Home() {
       <header className="border-b border-border">
         <div className="mx-auto max-w-5xl px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="size-7 rounded-md bg-white text-black flex items-center justify-center font-bold text-sm">
-              C
+           <img 
+              src="/logo.png"
+              alt="Logo do Sistema de Chamados"
+              className="size-9 object-contain"
+            />
+            <div className="flex flex-col">
+            <span className="font-semibold tracking-tight">
+              Hospital Ubarana
+              </span>
+
+              <span className="text-xs text-muted-foreground">
+                Sistema de Chamados
+              </span>
             </div>
-            <span className="font-semibold tracking-tight">Chamados</span>
           </div>
           <Link
             to="/admin/login"
@@ -122,4 +134,5 @@ function DeptCard({
       <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
     </Link>
   );
+
 }
