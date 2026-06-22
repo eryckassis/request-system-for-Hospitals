@@ -1,15 +1,31 @@
 import { useEffect, useRef } from "react";
-import gsap from "gsap";
+
+let gsapPromise: Promise<(typeof import("gsap"))["default"]> | undefined;
+
+function loadGsap() {
+  gsapPromise ??= import("gsap").then((module) => module.default);
+  return gsapPromise;
+}
 
 /** Page enter — fade + slide up. Apply to a wrapping element. */
 export function usePageEnter<T extends HTMLElement = HTMLDivElement>() {
   const ref = useRef<T | null>(null);
   useEffect(() => {
-    if (!ref.current) return;
-    const ctx = gsap.context(() => {
-      gsap.from(ref.current, { opacity: 0, y: 12, duration: 0.35, ease: "power2.out" });
-    }, ref);
-    return () => ctx.revert();
+    let cancelled = false;
+    let cleanup = () => {};
+
+    void loadGsap().then((gsap) => {
+      if (cancelled || !ref.current) return;
+      const ctx = gsap.context(() => {
+        gsap.from(ref.current, { opacity: 0, y: 12, duration: 0.35, ease: "power2.out" });
+      }, ref);
+      cleanup = () => ctx.revert();
+    });
+
+    return () => {
+      cancelled = true;
+      cleanup();
+    };
   }, []);
   return ref;
 }
@@ -21,17 +37,27 @@ export function useStaggerList<T extends HTMLElement = HTMLDivElement>(
 ) {
   const ref = useRef<T | null>(null);
   useEffect(() => {
-    if (!ref.current) return;
-    const ctx = gsap.context(() => {
-      gsap.from(`${selector}`, {
-        opacity: 0,
-        y: 10,
-        duration: 0.3,
-        ease: "power2.out",
-        stagger: 0.05,
-      });
-    }, ref);
-    return () => ctx.revert();
+    let cancelled = false;
+    let cleanup = () => {};
+
+    void loadGsap().then((gsap) => {
+      if (cancelled || !ref.current) return;
+      const ctx = gsap.context(() => {
+        gsap.from(selector, {
+          opacity: 0,
+          y: 10,
+          duration: 0.3,
+          ease: "power2.out",
+          stagger: 0.05,
+        });
+      }, ref);
+      cleanup = () => ctx.revert();
+    });
+
+    return () => {
+      cancelled = true;
+      cleanup();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
   return ref;
@@ -41,11 +67,21 @@ export function useStaggerList<T extends HTMLElement = HTMLDivElement>(
 export function useDialogEnter<T extends HTMLElement = HTMLDivElement>() {
   const ref = useRef<T | null>(null);
   useEffect(() => {
-    if (!ref.current) return;
-    const ctx = gsap.context(() => {
-      gsap.from(ref.current, { opacity: 0, y: 20, duration: 0.25, ease: "power2.out" });
-    }, ref);
-    return () => ctx.revert();
+    let cancelled = false;
+    let cleanup = () => {};
+
+    void loadGsap().then((gsap) => {
+      if (cancelled || !ref.current) return;
+      const ctx = gsap.context(() => {
+        gsap.from(ref.current, { opacity: 0, y: 20, duration: 0.25, ease: "power2.out" });
+      }, ref);
+      cleanup = () => ctx.revert();
+    });
+
+    return () => {
+      cancelled = true;
+      cleanup();
+    };
   }, []);
   return ref;
 }
@@ -54,10 +90,16 @@ export function useDialogEnter<T extends HTMLElement = HTMLDivElement>() {
 export function buttonHoverHandlers() {
   return {
     onMouseEnter: (e: React.MouseEvent<HTMLElement>) => {
-      gsap.to(e.currentTarget, { scale: 1.02, duration: 0.15, ease: "power2.out" });
+      const target = e.currentTarget;
+      void loadGsap().then((gsap) => {
+        gsap.to(target, { scale: 1.02, duration: 0.15, ease: "power2.out" });
+      });
     },
     onMouseLeave: (e: React.MouseEvent<HTMLElement>) => {
-      gsap.to(e.currentTarget, { scale: 1, duration: 0.15, ease: "power2.out" });
+      const target = e.currentTarget;
+      void loadGsap().then((gsap) => {
+        gsap.to(target, { scale: 1, duration: 0.15, ease: "power2.out" });
+      });
     },
   };
 }
