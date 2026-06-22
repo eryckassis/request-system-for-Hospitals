@@ -9,6 +9,7 @@ export type AdminContext = {
   id: string;
   email: string;
   name: string;
+  avatarUrl: string | null;
   roles: AppRole[];
   isSuper: boolean;
   departments: Department[];
@@ -20,7 +21,11 @@ async function fetchAdminContext(): Promise<AdminContext | null> {
   if (!user) return null;
 
   const [{ data: admin }, { data: rolesRows }] = await Promise.all([
-    supabase.from("admins").select("id, email, name").eq("id", user.id).maybeSingle(),
+    supabase
+      .from("admins")
+      .select("id, email, name, avatar_url")
+      .eq("id", user.id)
+      .maybeSingle(),
     supabase.from("user_roles").select("role").eq("user_id", user.id),
   ]);
 
@@ -30,10 +35,19 @@ async function fetchAdminContext(): Promise<AdminContext | null> {
     ? ["ti", "manutencao"]
     : roles.filter((r): r is Department => r === "ti" || r === "manutencao");
 
+  let avatarUrl: string | null = null;
+  if (admin?.avatar_url) {
+    const { data: signed } = await supabase.storage
+      .from("avatars")
+      .createSignedUrl(admin.avatar_url, 3600);
+    avatarUrl = signed?.signedUrl ?? null;
+  }
+
   return {
     id: user.id,
     email: admin?.email ?? user.email ?? "",
     name: admin?.name ?? user.email ?? "Admin",
+    avatarUrl,
     roles,
     isSuper,
     departments,
