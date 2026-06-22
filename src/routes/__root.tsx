@@ -85,6 +85,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Gestão de chamados para TI e Manutenção." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Sistema de Chamados" },
+      { name: "twitter:description", content: "Gestão de chamados para TI e Manutenção." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/a0835683-afc4-4bc7-8b35-42573354befc" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/a0835683-afc4-4bc7-8b35-42573354befc" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
