@@ -145,13 +145,14 @@ function AdminTicketPage() {
         </p>
       </section>
 
-      {ticket.images.length > 0 && (
+      {ticket.imageUrls.length > 0 && (
         <section className="mt-6">
           <h2 className="text-xs uppercase tracking-widest text-muted-foreground">
             Imagens
           </h2>
           <div className="mt-3 grid grid-cols-3 gap-2">
-            {ticket.images.map((src) => (
+            {ticket.imageUrls.map((src) => (
+
               <a
                 key={src}
                 href={src}
