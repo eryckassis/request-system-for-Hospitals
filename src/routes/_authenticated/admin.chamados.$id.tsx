@@ -46,9 +46,13 @@ function AdminTicketPage() {
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      if (!data) return null;
+      const { resolveTicketImageUrls } = await import("@/lib/image-url");
+      const imageUrls = await resolveTicketImageUrls(data.images ?? []);
+      return { ...data, imageUrls };
     },
   });
+
 
   const [status, setStatus] = useState<Status>("pending");
   const [resolutionNotes, setResolutionNotes] = useState("");
