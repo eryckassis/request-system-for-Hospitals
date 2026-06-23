@@ -131,8 +131,8 @@ function NewTicketPage() {
     if (submitting) return;
     setSubmitting(true);
     try {
-      // 1) Upload images
-      const uploadedUrls: string[] = [];
+      // 1) Upload images — guarda apenas o caminho no storage (bucket privado)
+      const uploadedPaths: string[] = [];
       for (const file of files) {
         const ext = file.name.split(".").pop() ?? "jpg";
         const path = `${dept}/${crypto.randomUUID()}.${ext}`;
@@ -140,13 +140,20 @@ function NewTicketPage() {
           .from("ticket-images")
           .upload(path, file, { contentType: file.type, upsert: false });
         if (upErr) throw upErr;
-        const { data: pub } = supabase.storage
-          .from("ticket-images")
-          .getPublicUrl(path);
-        uploadedUrls.push(pub.publicUrl);
+        uploadedPaths.push(path);
       }
 
-      // 2) Insert ticket
+      // 2) Upsert do usuário para alimentar o autocomplete
+      await supabase
+        .from("users")
+        .upsert(
+          { name: values.name.trim(), sector_id: values.sector_id },
+          { onConflict: "name", ignoreDuplicates: false },
+        )
+        .then(() => undefined)
+        .catch(() => undefined);
+
+      // 3) Insert ticket
       const { data, error } = await supabase
         .from("tickets")
         .insert({
@@ -155,7 +162,7 @@ function NewTicketPage() {
           department: dept,
           sector_id: values.sector_id,
           user_name_snapshot: values.name,
-          images: uploadedUrls,
+          images: uploadedPaths,
         })
         .select("id")
         .single();
@@ -172,6 +179,7 @@ function NewTicketPage() {
       setSubmitting(false);
     }
   });
+
 
   const Icon = dept === "ti" ? Monitor : Wrench;
 
