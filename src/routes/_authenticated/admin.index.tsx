@@ -1,10 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { toast } from "sonner";
+import { BellRing } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
+
 import { StatusBadge, departmentLabel } from "@/components/status-badge";
 import { useAdmin, type Department } from "@/hooks/use-admin";
 import { usePageEnter } from "@/hooks/use-gsap";
