@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
@@ -40,7 +41,7 @@ function AdminLoginPage() {
         <p className="text-xs uppercase tracking-widest text-muted-foreground text-center">
           Painel administrativo
         </p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight text-center">
+        <h1 className=" font-instrument italic mt-3 text-3xl  tracking-tight text-center">
           Entrar
         </h1>
 

@@ -3,6 +3,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Monitor, Wrench, ArrowRight, ShieldCheck } from "lucide-react";
 import { usePageEnter, buttonHoverHandlers } from "@/hooks/use-gsap";
+import Silk from "@/components/Silk";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,8 +28,22 @@ function Home() {
   const ref = usePageEnter<HTMLDivElement>();
 
   return (
-    <div ref={ref} className="min-h-screen flex flex-col">
-      <header className="border-b border-border">
+    <div ref={ref}
+     className="relative isolate min-h-screen overflow-hidden bg-background flex flex-col">
+      <div
+      aria-hidden="true"
+      className="pointer-events-none absolute inset-0 z-0"
+      >
+        <Silk
+        speed={3}
+        scale={1}
+        color="#5227FF"
+        noiseIntensity={1.2}
+        rotation={0}
+         />
+         <div className="absolute inset-0 bg-background/20" />
+      </div>
+      <header className="relative z-10  border-b border-border bg-background/30 backdrop-blur-sm">
         <div className="mx-auto max-w-5xl px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
            <img 
@@ -41,7 +56,7 @@ function Home() {
               Hospital Ubarana
               </span>
 
-              <span className="text-xs text-muted-foreground">
+              <span className=" font-instrument italic text-xs text-muted-foreground">
                 Sistema de Chamados
               </span>
             </div>
@@ -56,13 +71,13 @@ function Home() {
         </div>
       </header>
 
-      <main className="flex-1 flex items-center">
+      <main className="relative z-10 flex-1 flex items-center">
         <div className="mx-auto max-w-5xl w-full px-6 py-16">
           <div className="max-w-2xl">
-            <p className="text-sm text-muted-foreground mb-3 uppercase tracking-widest">
+            <p className=" text-sm text-muted-foreground mb-3 uppercase tracking-widest">
               Sistema interno
             </p>
-            <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight leading-[1.05]">
+            <h1 className="font-instrument italic text-5xl sm:text-6xl font-light tracking-tight leading-[1.09]">
               Abra um chamado em segundos.
             </h1>
             <p className="mt-4 text-muted-foreground text-lg max-w-xl">

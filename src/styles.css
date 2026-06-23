@@ -1,4 +1,5 @@
 
+
 @import "tailwindcss" source(none);
 @import "tw-animate-css";
 
@@ -50,6 +51,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   --font-sans: "SF Pro Display", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-instrument: "Instrument Serif", Georgia, "Times New Roman", serif;
 }
 
 :root,
@@ -104,6 +106,7 @@
 
   html {
     color-scheme: dark;
+    scrollbar-width: none;
   }
 
   body {

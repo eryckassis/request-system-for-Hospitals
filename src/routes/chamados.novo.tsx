@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { useEffect, useMemo, useState, useCallback } from "react";
@@ -223,7 +224,7 @@ function NewTicketPage() {
         <p className="text-xs uppercase tracking-widest text-muted-foreground">
           Novo chamado
         </p>
-        <h1 className="mt-2 text-3xl sm:text-4xl font-semibold tracking-tight">
+        <h1 className="font-instrument italic  mt-2 text-3xl sm:text-4xl tracking-tight">
           Conte o que está acontecendo.
         </h1>
         <p className="mt-2 text-muted-foreground">

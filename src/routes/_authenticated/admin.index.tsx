@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -118,7 +119,7 @@ function DashboardPage() {
     <div ref={ref} className="px-4 md:px-8 py-6 md:py-8 max-w-6xl mx-auto">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
+          <h1 className="font-instrument italic  text-3xl  tracking-tight">Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Visão geral dos chamados em aberto.
           </p>
