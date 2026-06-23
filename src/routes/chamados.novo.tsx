@@ -143,15 +143,18 @@ function NewTicketPage() {
         uploadedPaths.push(path);
       }
 
-      // 2) Upsert do usuário para alimentar o autocomplete
-      await supabase
-        .from("users")
-        .upsert(
-          { name: values.name.trim(), sector_id: values.sector_id },
-          { onConflict: "name", ignoreDuplicates: false },
-        )
-        .then(() => undefined)
-        .catch(() => undefined);
+      // 2) Upsert do usuário para alimentar o autocomplete (best-effort)
+      try {
+        await supabase
+          .from("users")
+          .upsert(
+            { name: values.name.trim(), sector_id: values.sector_id },
+            { onConflict: "name", ignoreDuplicates: false },
+          );
+      } catch {
+        // silencioso
+      }
+
 
       // 3) Insert ticket
       const { data, error } = await supabase
