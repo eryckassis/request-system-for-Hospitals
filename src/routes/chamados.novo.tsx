@@ -237,14 +237,35 @@ function NewTicketPage() {
               <Input
                 id="name"
                 placeholder="Ex: Maria Silva"
-                {...form.register("name")}
+                list="users-autocomplete"
+                autoComplete="off"
+                {...form.register("name", {
+                  onChange: (e) => {
+                    const match = usersQuery.data?.find(
+                      (u) =>
+                        u.name.toLowerCase() ===
+                        e.target.value.trim().toLowerCase(),
+                    );
+                    if (match?.sector_id) {
+                      form.setValue("sector_id", match.sector_id, {
+                        shouldValidate: true,
+                      });
+                    }
+                  },
+                })}
               />
+              <datalist id="users-autocomplete">
+                {usersQuery.data?.map((u) => (
+                  <option key={u.id} value={u.name} />
+                ))}
+              </datalist>
               {form.formState.errors.name && (
                 <p className="text-xs text-destructive">
                   {form.formState.errors.name.message}
                 </p>
               )}
             </div>
+
 
             <div className="space-y-2">
               <Label htmlFor="sector">Setor</Label>
