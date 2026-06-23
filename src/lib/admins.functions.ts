@@ -74,19 +74,24 @@ export const createAdmin = createServerFn({ method: "POST" })
       user_metadata: { name: data.name },
     });
     if (error || !created.user) {
-      throw new Error(error?.message ?? "Falha ao criar usuário");
+      const msg = error?.message ?? "Falha ao criar usuário";
+      if (/already|exists|registered/i.test(msg)) {
+        throw new Error(`Já existe uma conta com o e-mail ${data.email}.`);
+      }
+      throw new Error(msg);
     }
     const userId = created.user.id;
-    // handle_new_admin trigger inserts into admins; ensure name/email correct
-    await supabaseAdmin
+    const { error: aErr } = await supabaseAdmin
       .from("admins")
       .upsert({ id: userId, name: data.name, email: data.email });
+    if (aErr) throw new Error(`Erro ao salvar admin: ${aErr.message}`);
     const { error: roleErr } = await supabaseAdmin
       .from("user_roles")
       .insert({ user_id: userId, role: data.role });
-    if (roleErr) throw new Error(roleErr.message);
+    if (roleErr) throw new Error(`Erro ao definir papel: ${roleErr.message}`);
     return { id: userId };
   });
+
 
 export const updateAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
