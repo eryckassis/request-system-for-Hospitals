@@ -46,9 +46,13 @@ function AdminTicketPage() {
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      if (!data) return null;
+      const { resolveTicketImageUrls } = await import("@/lib/image-url");
+      const imageUrls = await resolveTicketImageUrls(data.images ?? []);
+      return { ...data, imageUrls };
     },
   });
+
 
   const [status, setStatus] = useState<Status>("pending");
   const [resolutionNotes, setResolutionNotes] = useState("");
@@ -141,13 +145,14 @@ function AdminTicketPage() {
         </p>
       </section>
 
-      {ticket.images.length > 0 && (
+      {ticket.imageUrls.length > 0 && (
         <section className="mt-6">
           <h2 className="text-xs uppercase tracking-widest text-muted-foreground">
             Imagens
           </h2>
           <div className="mt-3 grid grid-cols-3 gap-2">
-            {ticket.images.map((src) => (
+            {ticket.imageUrls.map((src) => (
+
               <a
                 key={src}
                 href={src}

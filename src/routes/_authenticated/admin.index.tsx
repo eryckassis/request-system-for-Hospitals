@@ -1,10 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { toast } from "sonner";
+import { BellRing } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
+
 import { StatusBadge, departmentLabel } from "@/components/status-badge";
 import { useAdmin, type Department } from "@/hooks/use-admin";
 import { usePageEnter } from "@/hooks/use-gsap";
@@ -22,11 +25,68 @@ function DashboardPage() {
   const depts = admin?.departments ?? [];
   const [dept, setDept] = useState<Department | "all">("all");
   const [status, setStatus] = useState<StatusFilter>("all");
+  const qc = useQueryClient();
+  
 
   const effectiveDepts = useMemo(
     () => (dept === "all" ? depts : [dept]),
     [dept, depts],
   );
+
+  // Realtime: novos chamados chegam sem recarregar + popup
+  useEffect(() => {
+    if (effectiveDepts.length === 0) return;
+    
+    const channel = supabase
+      .channel("tickets-stream")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "tickets" },
+        (payload) => {
+          const row = payload.new as {
+            department: Department;
+            title: string;
+            user_name_snapshot: string;
+            id: string;
+          };
+          if (!effectiveDepts.includes(row.department)) return;
+          qc.invalidateQueries({ queryKey: ["admin-tickets"] });
+          toast(
+            <div className="flex items-start gap-3">
+              <BellRing className="size-4 mt-0.5 text-warning shrink-0" />
+              <div className="text-sm">
+                <p className="font-medium">Novo chamado</p>
+                <p className="text-muted-foreground">
+                  {row.user_name_snapshot} — {row.title}
+                </p>
+              </div>
+            </div>,
+            {
+              action: {
+                label: "Abrir",
+                onClick: () => {
+                  window.location.href = `/admin/chamados/${row.id}`;
+                },
+              },
+              duration: 8000,
+            },
+          );
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "tickets" },
+        () => {
+          qc.invalidateQueries({ queryKey: ["admin-tickets"] });
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [effectiveDepts, qc]);
+
+
 
   const { data: tickets = [], isLoading } = useQuery({
     queryKey: ["admin-tickets", effectiveDepts, status],

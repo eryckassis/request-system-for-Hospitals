@@ -84,6 +84,21 @@ function NewTicketPage() {
     },
   });
 
+  const usersQuery = useQuery({
+    queryKey: ["users-autocomplete"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("users")
+        .select("id, name, sector_id")
+        .order("name")
+        .limit(500);
+      if (error) throw error;
+      return data ?? [];
+    },
+    staleTime: 5 * 60_000,
+  });
+
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: { name: "", sector_id: "", title: "", description: "" },
@@ -131,8 +146,8 @@ function NewTicketPage() {
     if (submitting) return;
     setSubmitting(true);
     try {
-      // 1) Upload images
-      const uploadedUrls: string[] = [];
+      // 1) Upload images — guarda apenas o caminho no storage (bucket privado)
+      const uploadedPaths: string[] = [];
       for (const file of files) {
         const ext = file.name.split(".").pop() ?? "jpg";
         const path = `${dept}/${crypto.randomUUID()}.${ext}`;
@@ -140,13 +155,23 @@ function NewTicketPage() {
           .from("ticket-images")
           .upload(path, file, { contentType: file.type, upsert: false });
         if (upErr) throw upErr;
-        const { data: pub } = supabase.storage
-          .from("ticket-images")
-          .getPublicUrl(path);
-        uploadedUrls.push(pub.publicUrl);
+        uploadedPaths.push(path);
       }
 
-      // 2) Insert ticket
+      // 2) Upsert do usuário para alimentar o autocomplete (best-effort)
+      try {
+        await supabase
+          .from("users")
+          .upsert(
+            { name: values.name.trim(), sector_id: values.sector_id },
+            { onConflict: "name", ignoreDuplicates: false },
+          );
+      } catch {
+        // silencioso
+      }
+
+
+      // 3) Insert ticket
       const { data, error } = await supabase
         .from("tickets")
         .insert({
@@ -155,7 +180,7 @@ function NewTicketPage() {
           department: dept,
           sector_id: values.sector_id,
           user_name_snapshot: values.name,
-          images: uploadedUrls,
+          images: uploadedPaths,
         })
         .select("id")
         .single();
@@ -172,6 +197,7 @@ function NewTicketPage() {
       setSubmitting(false);
     }
   });
+
 
   const Icon = dept === "ti" ? Monitor : Wrench;
 
@@ -211,14 +237,35 @@ function NewTicketPage() {
               <Input
                 id="name"
                 placeholder="Ex: Maria Silva"
-                {...form.register("name")}
+                list="users-autocomplete"
+                autoComplete="off"
+                {...form.register("name", {
+                  onChange: (e) => {
+                    const match = usersQuery.data?.find(
+                      (u) =>
+                        u.name.toLowerCase() ===
+                        e.target.value.trim().toLowerCase(),
+                    );
+                    if (match?.sector_id) {
+                      form.setValue("sector_id", match.sector_id, {
+                        shouldValidate: true,
+                      });
+                    }
+                  },
+                })}
               />
+              <datalist id="users-autocomplete">
+                {usersQuery.data?.map((u) => (
+                  <option key={u.id} value={u.name} />
+                ))}
+              </datalist>
               {form.formState.errors.name && (
                 <p className="text-xs text-destructive">
                   {form.formState.errors.name.message}
                 </p>
               )}
             </div>
+
 
             <div className="space-y-2">
               <Label htmlFor="sector">Setor</Label>
