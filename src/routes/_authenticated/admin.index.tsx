@@ -26,7 +26,7 @@ function DashboardPage() {
   const [dept, setDept] = useState<Department | "all">("all");
   const [status, setStatus] = useState<StatusFilter>("all");
   const qc = useQueryClient();
-  const firstLoad = useRef(true);
+  
 
   const effectiveDepts = useMemo(
     () => (dept === "all" ? depts : [dept]),
