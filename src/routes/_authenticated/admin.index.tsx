@@ -36,7 +36,7 @@ function DashboardPage() {
   // Realtime: novos chamados chegam sem recarregar + popup
   useEffect(() => {
     if (effectiveDepts.length === 0) return;
-    firstLoad.current = true;
+    
     const channel = supabase
       .channel("tickets-stream")
       .on(
