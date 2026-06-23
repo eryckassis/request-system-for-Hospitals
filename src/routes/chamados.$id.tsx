@@ -118,14 +118,14 @@ function TicketViewPage() {
           <h2 className="text-xs uppercase tracking-widest text-muted-foreground">
             Imagens
           </h2>
-          {t.images.length === 0 ? (
+          {t.imageUrls.length === 0 ? (
             <div className="mt-3 rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
               <ImageOff className="mx-auto size-5 mb-2" />
               Nenhuma imagem anexada
             </div>
           ) : (
             <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {t.images.map((src) => (
+              {t.imageUrls.map((src) => (
                 <a
                   key={src}
                   href={src}
@@ -144,6 +144,7 @@ function TicketViewPage() {
             </div>
           )}
         </section>
+
 
         {t.status === "resolved" && (
           <section className="mt-8 rounded-md border border-success/30 bg-success/5 p-5">
