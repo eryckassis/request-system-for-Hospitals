@@ -7,6 +7,7 @@ import { ptBR } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
 import { StatusBadge, departmentLabel } from "@/components/status-badge";
 import { usePageEnter } from "@/hooks/use-gsap";
+import { resolveTicketImageUrls } from "@/lib/image-url";
 
 const ticketQuery = (id: string) =>
   queryOptions({
@@ -21,9 +22,11 @@ const ticketQuery = (id: string) =>
         .maybeSingle();
       if (error) throw error;
       if (!data) throw notFound();
-      return data;
+      const imageUrls = await resolveTicketImageUrls(data.images ?? []);
+      return { ...data, imageUrls };
     },
   });
+
 
 export const Route = createFileRoute("/chamados/$id")({
   loader: ({ context, params }) =>
