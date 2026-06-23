@@ -25,11 +25,68 @@ function DashboardPage() {
   const depts = admin?.departments ?? [];
   const [dept, setDept] = useState<Department | "all">("all");
   const [status, setStatus] = useState<StatusFilter>("all");
+  const qc = useQueryClient();
+  const firstLoad = useRef(true);
 
   const effectiveDepts = useMemo(
     () => (dept === "all" ? depts : [dept]),
     [dept, depts],
   );
+
+  // Realtime: novos chamados chegam sem recarregar + popup
+  useEffect(() => {
+    if (effectiveDepts.length === 0) return;
+    firstLoad.current = true;
+    const channel = supabase
+      .channel("tickets-stream")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "tickets" },
+        (payload) => {
+          const row = payload.new as {
+            department: Department;
+            title: string;
+            user_name_snapshot: string;
+            id: string;
+          };
+          if (!effectiveDepts.includes(row.department)) return;
+          qc.invalidateQueries({ queryKey: ["admin-tickets"] });
+          toast(
+            <div className="flex items-start gap-3">
+              <BellRing className="size-4 mt-0.5 text-warning shrink-0" />
+              <div className="text-sm">
+                <p className="font-medium">Novo chamado</p>
+                <p className="text-muted-foreground">
+                  {row.user_name_snapshot} — {row.title}
+                </p>
+              </div>
+            </div>,
+            {
+              action: {
+                label: "Abrir",
+                onClick: () => {
+                  window.location.href = `/admin/chamados/${row.id}`;
+                },
+              },
+              duration: 8000,
+            },
+          );
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "tickets" },
+        () => {
+          qc.invalidateQueries({ queryKey: ["admin-tickets"] });
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [effectiveDepts, qc]);
+
+
 
   const { data: tickets = [], isLoading } = useQuery({
     queryKey: ["admin-tickets", effectiveDepts, status],
