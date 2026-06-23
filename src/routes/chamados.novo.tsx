@@ -84,6 +84,21 @@ function NewTicketPage() {
     },
   });
 
+  const usersQuery = useQuery({
+    queryKey: ["users-autocomplete"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("users")
+        .select("id, name, sector_id")
+        .order("name")
+        .limit(500);
+      if (error) throw error;
+      return data ?? [];
+    },
+    staleTime: 5 * 60_000,
+  });
+
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: { name: "", sector_id: "", title: "", description: "" },
