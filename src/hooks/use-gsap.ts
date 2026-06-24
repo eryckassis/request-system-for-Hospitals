@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type MouseEvent } from "react";
 
 let gsapPromise: Promise<(typeof import("gsap"))["default"]> | undefined;
 
@@ -89,16 +89,80 @@ export function useDialogEnter<T extends HTMLElement = HTMLDivElement>() {
 /** Hover handlers for buttons (scale 1.02). Spread onto a button. */
 export function buttonHoverHandlers() {
   return {
-    onMouseEnter: (e: React.MouseEvent<HTMLElement>) => {
+    onMouseEnter: (e: MouseEvent<HTMLElement>) => {
       const target = e.currentTarget;
       void loadGsap().then((gsap) => {
         gsap.to(target, { scale: 1.02, duration: 0.15, ease: "power2.out" });
       });
     },
-    onMouseLeave: (e: React.MouseEvent<HTMLElement>) => {
+    onMouseLeave: (e: MouseEvent<HTMLElement>) => {
       const target = e.currentTarget;
       void loadGsap().then((gsap) => {
         gsap.to(target, { scale: 1, duration: 0.15, ease: "power2.out" });
+      });
+    },
+  };
+}
+
+/** Card hover with the same vertical slide used by text buttons on the arrow icon. */
+export function cardHoverHandlers(
+  arrowIconSelector = ".card-arrow-icon",
+) {
+  return {
+    onMouseEnter: (e: MouseEvent<HTMLElement>) => {
+      const target = e.currentTarget;
+      const arrowIcons = target.querySelectorAll(arrowIconSelector);
+
+      void loadGsap().then((gsap) => {
+        gsap.to(arrowIcons, {
+          yPercent: -100,
+          duration: 0.25,
+          ease: "power2.out",
+          overwrite: "auto",
+        });
+      });
+    },
+    onMouseLeave: (e: MouseEvent<HTMLElement>) => {
+      const target = e.currentTarget;
+      const arrowIcons = target.querySelectorAll(arrowIconSelector);
+
+      void loadGsap().then((gsap) => {
+        gsap.to(arrowIcons, {
+          yPercent: 0,
+          duration: 0.25,
+          ease: "power2.out",
+          overwrite: "auto",
+        });
+      });
+    },
+  };
+}
+
+/** Hover text slide. Requires two matching text elements stacked in an overflow-hidden wrapper. */
+export function buttonTextSlideHoverHandlers(selector = ".button-slide-text") {
+  return {
+    onMouseEnter: (e: MouseEvent<HTMLElement>) => {
+      const texts = e.currentTarget.querySelectorAll(selector);
+
+      void loadGsap().then((gsap) => {
+        gsap.to(texts, {
+          yPercent: -100,
+          duration: 0.25,
+          ease: "power2.out",
+          overwrite: "auto",
+        });
+      });
+    },
+    onMouseLeave: (e: MouseEvent<HTMLElement>) => {
+      const texts = e.currentTarget.querySelectorAll(selector);
+
+      void loadGsap().then((gsap) => {
+        gsap.to(texts, {
+          yPercent: 0,
+          duration: 0.25,
+          ease: "power2.out",
+          overwrite: "auto",
+        });
       });
     },
   };

@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { usePageEnter } from "@/hooks/use-gsap";
+import { buttonTextSlideHoverHandlers, usePageEnter } from "@/hooks/use-gsap";
 
 export const Route = createFileRoute("/admin/login")({
   head: () => ({ meta: [{ title: "Acesso admin — Sistema de Chamados" }] }),
@@ -70,9 +70,21 @@ function AdminLoginPage() {
               className="mt-1.5"
             />
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button
+            type="submit"
+            className="w-full bg-[#5227FF] text-white hover:bg-[#5227FF]/90"
+            disabled={loading}
+            {...buttonTextSlideHoverHandlers()}
+          >
             {loading && <Loader2 className="size-4 mr-2 animate-spin" />}
-            Entrar
+            <span className="relative inline-flex h-[1.4em] flex-col overflow-hidden">
+              <span className=" button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+                Entrar
+              </span>
+              <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+                Entrar
+              </span>
+            </span>
           </Button>
         </form>
 

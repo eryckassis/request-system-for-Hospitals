@@ -7,14 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import {
-  ArrowLeft,
-  ImagePlus,
-  Loader2,
-  Monitor,
-  Wrench,
-  X,
-} from "lucide-react";
+import { ArrowLeft, ImagePlus, Loader2, Monitor, Wrench, X } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -28,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { usePageEnter } from "@/hooks/use-gsap";
+import { buttonTextSlideHoverHandlers, usePageEnter } from "@/hooks/use-gsap";
 import { departmentLabel } from "@/components/status-badge";
 
 const searchSchema = z.object({
@@ -99,7 +92,6 @@ function NewTicketPage() {
     staleTime: 5 * 60_000,
   });
 
-
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: { name: "", sector_id: "", title: "", description: "" },
@@ -109,10 +101,7 @@ function NewTicketPage() {
     () => files.map((f) => ({ name: f.name, url: URL.createObjectURL(f) })),
     [files],
   );
-  useEffect(
-    () => () => previews.forEach((p) => URL.revokeObjectURL(p.url)),
-    [previews],
-  );
+  useEffect(() => () => previews.forEach((p) => URL.revokeObjectURL(p.url)), [previews]);
 
   const onDrop = useCallback(
     (accepted: File[]) => {
@@ -140,8 +129,7 @@ function NewTicketPage() {
     multiple: true,
   });
 
-  const removeFile = (i: number) =>
-    setFiles((arr) => arr.filter((_, idx) => idx !== i));
+  const removeFile = (i: number) => setFiles((arr) => arr.filter((_, idx) => idx !== i));
 
   const onSubmit = form.handleSubmit(async (values) => {
     if (submitting) return;
@@ -171,7 +159,6 @@ function NewTicketPage() {
         // silencioso
       }
 
-
       // 3) Insert ticket
       const { data, error } = await supabase
         .from("tickets")
@@ -191,14 +178,11 @@ function NewTicketPage() {
       navigate({ to: "/chamados/$id", params: { id: data.id } });
     } catch (e) {
       console.error(e);
-      toast.error(
-        e instanceof Error ? e.message : "Não foi possível abrir o chamado.",
-      );
+      toast.error(e instanceof Error ? e.message : "Não foi possível abrir o chamado.");
     } finally {
       setSubmitting(false);
     }
   });
-
 
   const Icon = dept === "ti" ? Monitor : Wrench;
 
@@ -208,10 +192,19 @@ function NewTicketPage() {
         <div className="mx-auto max-w-3xl px-6 py-4 flex items-center justify-between">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            {...buttonTextSlideHoverHandlers()}
+            className="inline-flex items-center rounded bg-[#5227FF] px-3 py-2 text-sm font-medium text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)] focus:outline-none focus:ring-2 focus:ring-ring"
           >
-            <ArrowLeft className="size-4" />
-            Voltar
+            <span className="relative inline-flex h-[1.4em] flex-col overflow-hidden">
+              <span className="button-slide-text inline-flex h-[1.4em] items-center gap-2 will-change-transform">
+                <ArrowLeft className="size-4" />
+                Voltar
+              </span>
+              <span className="button-slide-text inline-flex h-[1.4em] items-center gap-2 will-change-transform">
+                <ArrowLeft className="size-4" />
+                Voltar
+              </span>
+            </span>
           </Link>
           <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
             <Icon className="size-4" />
@@ -221,9 +214,7 @@ function NewTicketPage() {
       </header>
 
       <main className="mx-auto max-w-3xl px-6 py-10">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">
-          Novo chamado
-        </p>
+        <p className="text-xs uppercase tracking-widest text-muted-foreground">Novo chamado</p>
         <h1 className="font-instrument italic  mt-2 text-3xl sm:text-4xl tracking-tight">
           Conte o que está acontecendo.
         </h1>
@@ -243,9 +234,7 @@ function NewTicketPage() {
                 {...form.register("name", {
                   onChange: (e) => {
                     const match = usersQuery.data?.find(
-                      (u) =>
-                        u.name.toLowerCase() ===
-                        e.target.value.trim().toLowerCase(),
+                      (u) => u.name.toLowerCase() === e.target.value.trim().toLowerCase(),
                     );
                     if (match?.sector_id) {
                       form.setValue("sector_id", match.sector_id, {
@@ -261,20 +250,15 @@ function NewTicketPage() {
                 ))}
               </datalist>
               {form.formState.errors.name && (
-                <p className="text-xs text-destructive">
-                  {form.formState.errors.name.message}
-                </p>
+                <p className="text-xs text-destructive">{form.formState.errors.name.message}</p>
               )}
             </div>
-
 
             <div className="space-y-2">
               <Label htmlFor="sector">Setor</Label>
               <Select
                 value={form.watch("sector_id")}
-                onValueChange={(v) =>
-                  form.setValue("sector_id", v, { shouldValidate: true })
-                }
+                onValueChange={(v) => form.setValue("sector_id", v, { shouldValidate: true })}
               >
                 <SelectTrigger id="sector">
                   <SelectValue
@@ -305,15 +289,9 @@ function NewTicketPage() {
 
           <div className="space-y-2">
             <Label htmlFor="title">Título</Label>
-            <Input
-              id="title"
-              placeholder="Resumo do problema"
-              {...form.register("title")}
-            />
+            <Input id="title" placeholder="Resumo do problema" {...form.register("title")} />
             {form.formState.errors.title && (
-              <p className="text-xs text-destructive">
-                {form.formState.errors.title.message}
-              </p>
+              <p className="text-xs text-destructive">{form.formState.errors.title.message}</p>
             )}
           </div>
 
@@ -337,16 +315,13 @@ function NewTicketPage() {
             <div
               {...getRootProps()}
               className={`rounded-md border border-dashed p-6 text-center cursor-pointer transition-colors ${
-                isDragActive
-                  ? "border-white/60 bg-white/5"
-                  : "border-border hover:border-white/30"
+                isDragActive ? "border-white/60 bg-white/5" : "border-border hover:border-white/30"
               }`}
             >
               <input {...getInputProps()} />
               <ImagePlus className="mx-auto size-6 text-muted-foreground" />
               <p className="mt-2 text-sm">
-                Arraste e solte ou{" "}
-                <span className="underline">clique para enviar</span>
+                Arraste e solte ou <span className="underline">clique para enviar</span>
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 Até {MAX_IMAGES} imagens · máx 5 MB cada
@@ -359,11 +334,7 @@ function NewTicketPage() {
                     key={p.url}
                     className="relative aspect-square rounded-md overflow-hidden border border-border bg-surface"
                   >
-                    <img
-                      src={p.url}
-                      alt={p.name}
-                      className="size-full object-cover"
-                    />
+                    <img src={p.url} alt={p.name} className="size-full object-cover" />
                     <button
                       type="button"
                       onClick={() => removeFile(i)}
@@ -379,15 +350,24 @@ function NewTicketPage() {
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-2">
-            <Link
-              to="/"
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
+            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">
               Cancelar
             </Link>
-            <Button type="submit" disabled={submitting} className="min-w-40">
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="min-w-40 bg-[#5227FF] text-white hover:bg-[#5227FF]/90"
+              {...buttonTextSlideHoverHandlers()}
+            >
               {submitting && <Loader2 className="size-4 animate-spin" />}
-              {submitting ? "Enviando..." : "Abrir chamado"}
+              <span className="relative inline-flex h-[1.4em] flex-col overflow-hidden">
+                <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+                  {submitting ? "Enviando..." : "Abrir chamado"}
+                </span>
+                <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+                  {submitting ? "Enviando..." : "Abrir chamado"}
+                </span>
+              </span>
             </Button>
           </div>
         </form>
