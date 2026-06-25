@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -17,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { useAdmin, type Department } from "@/hooks/use-admin";
 import { departmentLabel } from "@/components/status-badge";
-import { usePageEnter } from "@/hooks/use-gsap";
+import { usePageEnter, buttonTextSlideHoverHandlers } from "@/hooks/use-gsap";
 
 export const Route = createFileRoute("/_authenticated/admin/setores")({
   component: SectorsPage,
@@ -28,11 +29,10 @@ function SectorsPage() {
   const { data: admin } = useAdmin();
   const qc = useQueryClient();
   const depts = admin?.departments ?? [];
-
+  const [sectorId, setSectorId] = useState("");
   const [name, setName] = useState("");
   const [dept, setDept] = useState<Department | "">("");
   const [creating, setCreating] = useState(false);
-
   const { data: sectors = [], isLoading } = useQuery({
     queryKey: ["sectors", depts],
     enabled: depts.length > 0,
@@ -51,7 +51,9 @@ function SectorsPage() {
     e.preventDefault();
     if (!dept || !name.trim()) return;
     setCreating(true);
-    const { error } = await supabase.from("sectors").insert({ name: name.trim(), department: dept });
+    const { error } = await supabase
+      .from("sectors")
+      .insert({ name: name.trim(), department: dept });
     setCreating(false);
     if (error) return toast.error(error.message);
     toast.success("Setor criado");
@@ -69,7 +71,7 @@ function SectorsPage() {
 
   return (
     <div ref={ref} className="px-4 md:px-8 py-6 md:py-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-semibold tracking-tight">Setores</h1>
+      <h1 className="text-4xl font-instrument italic tracking-tight">Setores</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Cadastre os setores disponíveis para abertura de chamados.
       </p>
@@ -104,9 +106,21 @@ function SectorsPage() {
             </SelectContent>
           </Select>
         </div>
-        <Button type="submit" disabled={creating || !dept || !name.trim()}>
-          {creating && <Loader2 className="size-4 mr-2 animate-spin" />}
-          Adicionar
+        <Button
+          type="submit"
+          disabled={creating || !name.trim() || !sectorId}
+          {...buttonTextSlideHoverHandlers()}
+          className="gap-2 bg-[#5227FF] text-white hover:bg-[#4521d9]"
+        >
+          {creating && <Loader2 className="size-4 shrink-0 animate-spin" />}
+          <span className="relative inline-flex h-[1.25em] flex-col overflow-hidden">
+            <span className="button-slide-text inline-flex h-[1.25em] items-center will-change-transform">
+              Adicionar
+            </span>
+            <span className="button-slide-text inline-flex h-[1.25em] items-center will-change-transform">
+              Adicionar
+            </span>
+          </span>
         </Button>
       </form>
 

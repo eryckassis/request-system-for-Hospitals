@@ -1,8 +1,9 @@
+/* eslint-disable prettier/prettier */
 import { useEffect, useRef, type MouseEvent } from "react";
 
 let gsapPromise: Promise<(typeof import("gsap"))["default"]> | undefined;
 
-function loadGsap() {
+export function loadGsap() {
   gsapPromise ??= import("gsap").then((module) => module.default);
   return gsapPromise;
 }
@@ -105,9 +106,7 @@ export function buttonHoverHandlers() {
 }
 
 /** Card hover with the same vertical slide used by text buttons on the arrow icon. */
-export function cardHoverHandlers(
-  arrowIconSelector = ".card-arrow-icon",
-) {
+export function cardHoverHandlers(arrowIconSelector = ".card-arrow-icon") {
   return {
     onMouseEnter: (e: MouseEvent<HTMLElement>) => {
       const target = e.currentTarget;

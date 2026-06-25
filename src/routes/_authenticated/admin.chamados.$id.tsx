@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -19,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { StatusBadge, departmentLabel } from "@/components/status-badge";
 import { useAdmin } from "@/hooks/use-admin";
-import { usePageEnter } from "@/hooks/use-gsap";
+import { usePageEnter, buttonTextSlideHoverHandlers } from "@/hooks/use-gsap";
 import type { Database } from "@/integrations/supabase/types";
 
 type Status = Database["public"]["Enums"]["ticket_status"];
@@ -53,7 +54,6 @@ function AdminTicketPage() {
     },
   });
 
-
   const [status, setStatus] = useState<Status>("pending");
   const [resolutionNotes, setResolutionNotes] = useState("");
   const [resolvedSuccessfully, setResolvedSuccessfully] = useState<"true" | "false">("true");
@@ -86,8 +86,7 @@ function AdminTicketPage() {
     );
   }
 
-  const canManage =
-    admin?.isSuper || admin?.departments.includes(ticket.department);
+  const canManage = admin?.isSuper || admin?.departments.includes(ticket.department);
 
   const onSave = async () => {
     if (!canManage) return;
@@ -116,10 +115,18 @@ function AdminTicketPage() {
     <div ref={ref} className="px-4 md:px-8 py-6 md:py-8 max-w-3xl mx-auto">
       <Link
         to="/admin"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+        {...buttonTextSlideHoverHandlers()}
+        className="inline-flex cursor-pointer items-center gap-2 rounded bg-[#5227FF] px-2 py-2 text-[1.30rem] font-[420] text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)] focus:outline-none focus:ring-2 focus:ring-ring"
       >
         <ArrowLeft className="size-4" />
-        Dashboard
+        <span className="relative inline-flex h-[1.4em] flex-col overflow-hidden">
+          <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+            Dashboard
+          </span>
+          <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+            Dashboard
+          </span>
+        </span>
       </Link>
 
       <div className="mt-6 flex flex-wrap items-center gap-2">
@@ -131,28 +138,20 @@ function AdminTicketPage() {
 
       <h1 className="mt-3 text-3xl font-semibold tracking-tight">{ticket.title}</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Aberto por{" "}
-        <span className="text-foreground">{ticket.user_name_snapshot}</span> em{" "}
+        Aberto por <span className="text-foreground">{ticket.user_name_snapshot}</span> em{" "}
         {format(new Date(ticket.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
       </p>
 
       <section className="mt-6">
-        <h2 className="text-xs uppercase tracking-widest text-muted-foreground">
-          Descrição
-        </h2>
-        <p className="mt-2 whitespace-pre-wrap leading-relaxed text-[15px]">
-          {ticket.description}
-        </p>
+        <h2 className="text-xs uppercase tracking-widest text-muted-foreground">Descrição</h2>
+        <p className="mt-2 whitespace-pre-wrap leading-relaxed text-[15px]">{ticket.description}</p>
       </section>
 
       {ticket.imageUrls.length > 0 && (
         <section className="mt-6">
-          <h2 className="text-xs uppercase tracking-widest text-muted-foreground">
-            Imagens
-          </h2>
+          <h2 className="text-xs uppercase tracking-widest text-muted-foreground">Imagens</h2>
           <div className="mt-3 grid grid-cols-3 gap-2">
             {ticket.imageUrls.map((src) => (
-
               <a
                 key={src}
                 href={src}

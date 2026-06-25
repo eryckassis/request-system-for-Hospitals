@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { useState } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
@@ -12,7 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-
+import { buttonTextSlideHoverHandlers } from "@/hooks/use-gsap";
 import { supabase } from "@/integrations/supabase/client";
 import { useAdmin } from "@/hooks/use-admin";
 import { AdminAvatar } from "@/components/admin-avatar";
@@ -68,22 +69,20 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const NavLinks = () => (
     <>
       {nav.map((item) => {
-        const active = item.exact
-          ? pathname === item.to
-          : pathname.startsWith(item.to);
+        const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
         return (
           <Link
             key={item.to}
             to={item.to}
             onClick={() => setOpen(false)}
             className={cn(
-              "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
+              "flex items-center  gap-2 rounded-md px-3 py-2 text-sm transition-colors",
               active
                 ? "bg-surface-2 text-foreground"
                 : "text-muted-foreground hover:bg-surface-2/60 hover:text-foreground",
             )}
           >
-            <item.icon className="size-4" />
+            <item.icon className="size-8" />
             {item.label}
           </Link>
         );
@@ -100,7 +99,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 : "text-muted-foreground hover:bg-surface-2/60 hover:text-foreground",
             )}
           >
-            <FileText className="size-4" />
+            <FileText className="size-8" />
             Relatórios
           </Link>
           <Link
@@ -113,7 +112,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 : "text-muted-foreground hover:bg-surface-2/60 hover:text-foreground",
             )}
           >
-            <Settings className="size-4" />
+            <Settings className="size-8" />
             Configurações
           </Link>
         </>
@@ -127,14 +126,12 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <Link
           to="/admin"
           onClick={() => setOpen(false)}
-          className="text-sm font-semibold tracking-tight"
+          className="text-2xl font-semibold tracking-tight"
         >
           Sistema de Chamados
         </Link>
-        <p className="mt-1 text-[11px] uppercase tracking-widest text-muted-foreground">
-          {admin.isSuper
-            ? "Super admin"
-            : admin.departments.join(" · ") || "Admin"}
+        <p className="mt-1 text-[11px] uppercase text-muted-foreground">
+          {admin.isSuper ? "Administrador Geral" : admin.departments.join(" · ") || "Admin"}
         </p>
       </div>
 
@@ -144,25 +141,26 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
 
       <div className="px-3 py-3 border-t border-border">
         <div className="flex items-center gap-3 px-2 pb-3">
-          <AdminAvatar
-            userId={admin.id}
-            name={admin.name}
-            avatarUrl={admin.avatarUrl}
-            editable
-          />
+          <AdminAvatar userId={admin.id} name={admin.name} avatarUrl={admin.avatarUrl} editable />
           <div className="min-w-0 flex-1">
             <p className="text-sm truncate">{admin.name}</p>
-            <p className="text-xs text-muted-foreground truncate">
-              {admin.email}
-            </p>
+            <p className="text-xs text-muted-foreground truncate">{admin.email}</p>
           </div>
         </div>
         <button
           onClick={signOut}
-          className="w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted-foreground hover:bg-surface-2/60 hover:text-foreground"
+          {...buttonTextSlideHoverHandlers()}
+          className="w-full flex cursor-pointer items-center justify-center gap-2 rounded-md bg-[#5227FF] px-3 py-2 text-sm font-medium text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:bg-[#4521d9] focus:outline-none focus:ring-2 focus:ring-ring"
         >
-          <LogOut className="size-4" />
-          Sair
+          <LogOut className="size-4 shrink-0" />
+          <span className="relative inline-flex h-[1.25em] flex-col overflow-hidden">
+            <span className="button-slide-text inline-flex h-[1.25em] items-center will-change-transform">
+              Sair
+            </span>
+            <span className="button-slide-text inline-flex h-[1.25em] items-center will-change-transform">
+              Sair
+            </span>
+          </span>
         </button>
       </div>
     </>

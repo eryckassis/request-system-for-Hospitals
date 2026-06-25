@@ -1,3 +1,6 @@
+/* eslint-disable prettier/prettier */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable prettier/prettier */
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -5,12 +8,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-import {
-  createAdmin,
-  deleteAdmin,
-  listAdmins,
-  updateAdmin,
-} from "@/lib/admins.functions";
+import { createAdmin, deleteAdmin, listAdmins, updateAdmin } from "@/lib/admins.functions";
 import { useAdmin, type AppRole } from "@/hooks/use-admin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { usePageEnter } from "@/hooks/use-gsap";
+import { usePageEnter, buttonTextSlideHoverHandlers } from "@/hooks/use-gsap";
 
 export const Route = createFileRoute("/_authenticated/admin/configuracoes")({
   component: ConfigPage,
@@ -122,10 +120,8 @@ function ConfigPage() {
 
   return (
     <div ref={ref} className="px-4 md:px-8 py-6 md:py-8 max-w-5xl mx-auto">
-      <h1 className="text-3xl font-semibold tracking-tight">Configurações</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Gerencie os administradores do sistema.
-      </p>
+      <h1 className="text-4xl font-instrument italic tracking-tight">Configurações</h1>
+      <p className="mt-1 text-sm text-muted-foreground">Gerencie os administradores do sistema.</p>
 
       <form
         onSubmit={onCreate}
@@ -179,18 +175,28 @@ function ConfigPage() {
           </Select>
         </div>
         <div className="md:col-span-2 flex justify-end">
-          <Button type="submit" disabled={creating}>
-            {creating && <Loader2 className="size-4 mr-2 animate-spin" />}
-            Criar admin
+          <Button
+            type="submit"
+            disabled={creating}
+            {...buttonTextSlideHoverHandlers()}
+            className="gap-2 bg-[#5227FF] text-white hover:bg-[#4521d9]"
+          >
+            {creating && <Loader2 className="size-4 shrink-0 animate-spin" />}
+            <span className="relative inline-flex h-[1.25em] flex-col overflow-hidden">
+              <span className="button-slide-text inline-flex h-[1.25em] items-center will-change-transform">
+                Criar admin
+              </span>
+              <span className="button-slide-text inline-flex h-[1.25em] items-center will-change-transform">
+                Criar admin
+              </span>
+            </span>
           </Button>
         </div>
       </form>
 
       <section className="mt-6 rounded-md border border-border overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-sm text-muted-foreground">
-            Carregando…
-          </div>
+          <div className="p-8 text-center text-sm text-muted-foreground">Carregando…</div>
         ) : admins.length === 0 ? (
           <div className="p-10 text-center text-sm text-muted-foreground">
             Nenhum admin cadastrado.
@@ -216,9 +222,7 @@ function ConfigPage() {
                     <td className="px-4 py-3">
                       <Select
                         value={currentRole}
-                        onValueChange={(v) =>
-                          onChangeRole(a.id, v as AppRole)
-                        }
+                        onValueChange={(v) => onChangeRole(a.id, v as AppRole)}
                         disabled={isMe}
                       >
                         <SelectTrigger className="w-[160px]">
@@ -226,12 +230,8 @@ function ConfigPage() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="ti">{roleLabel.ti}</SelectItem>
-                          <SelectItem value="manutencao">
-                            {roleLabel.manutencao}
-                          </SelectItem>
-                          <SelectItem value="super">
-                            {roleLabel.super}
-                          </SelectItem>
+                          <SelectItem value="manutencao">{roleLabel.manutencao}</SelectItem>
+                          <SelectItem value="super">{roleLabel.super}</SelectItem>
                         </SelectContent>
                       </Select>
                     </td>
