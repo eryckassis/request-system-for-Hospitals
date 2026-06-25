@@ -17,6 +17,7 @@ export const Route = createFileRoute("/admin/login")({
 });
 
 function AdminLoginPage() {
+  useLenis();
   const navigate = useNavigate();
   const ref = usePageEnter<HTMLDivElement>();
   const [email, setEmail] = useState("");
