@@ -6,12 +6,11 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { BellRing } from "lucide-react";
-
 import { supabase } from "@/integrations/supabase/client";
-
 import { StatusBadge, departmentLabel } from "@/components/status-badge";
 import { useAdmin, type Department } from "@/hooks/use-admin";
-import { usePageEnter } from "@/hooks/use-gsap";
+import { AnimatedToggleGroup } from "@/components/ui/animated-toggle-group";
+import { usePageEnter, buttonTextSlideHoverHandlers } from "@/hooks/use-gsap";
 import { cn } from "@/lib/utils";
 
 type StatusFilter = "all" | "pending" | "in_progress" | "resolved";
@@ -27,17 +26,13 @@ function DashboardPage() {
   const [dept, setDept] = useState<Department | "all">("all");
   const [status, setStatus] = useState<StatusFilter>("all");
   const qc = useQueryClient();
-  
 
-  const effectiveDepts = useMemo(
-    () => (dept === "all" ? depts : [dept]),
-    [dept, depts],
-  );
+  const effectiveDepts = useMemo(() => (dept === "all" ? depts : [dept]), [dept, depts]);
 
   // Realtime: novos chamados chegam sem recarregar + popup
   useEffect(() => {
     if (effectiveDepts.length === 0) return;
-    
+
     const channel = supabase
       .channel("tickets-stream")
       .on(
@@ -74,20 +69,14 @@ function DashboardPage() {
           );
         },
       )
-      .on(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "tickets" },
-        () => {
-          qc.invalidateQueries({ queryKey: ["admin-tickets"] });
-        },
-      )
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "tickets" }, () => {
+        qc.invalidateQueries({ queryKey: ["admin-tickets"] });
+      })
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
   }, [effectiveDepts, qc]);
-
-
 
   const { data: tickets = [], isLoading } = useQuery({
     queryKey: ["admin-tickets", effectiveDepts, status],
@@ -119,17 +108,25 @@ function DashboardPage() {
     <div ref={ref} className="px-4 md:px-8 py-6 md:py-8 max-w-6xl mx-auto">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-instrument italic  text-3xl  tracking-tight">Dashboard</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1 className="font-instrument italic  text-4xl  tracking-tight">Dashboard</h1>
+          <p className="mt-1 text-[1rem] text-muted-foreground">
             Visão geral dos chamados em aberto.
           </p>
         </div>
         {admin?.isSuper && (
           <Link
             to="/admin/relatorios"
-            className="text-sm text-muted-foreground hover:text-foreground underline"
+            {...buttonTextSlideHoverHandlers()}
+            className="inline-flex cursor-pointer rounded bg-[#5227FF] px-2 py-2 text-[1.30rem] font-[420] text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)] focus:outline-none focus:ring-2 focus:ring-ring"
           >
-            Ver relatórios →
+            <span className="relative inline-flex h-[1.4em] flex-col overflow-hidden">
+              <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+                Ver relatórios
+              </span>
+              <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+                Ver relatórios
+              </span>
+            </span>
           </Link>
         )}
       </header>
@@ -143,7 +140,7 @@ function DashboardPage() {
 
       <section className="mt-8 flex flex-wrap gap-2">
         {depts.length > 1 && (
-          <FilterGroup
+          <AnimatedToggleGroup
             value={dept}
             onChange={(v) => setDept(v as Department | "all")}
             options={[
@@ -152,7 +149,7 @@ function DashboardPage() {
             ]}
           />
         )}
-        <FilterGroup
+        <AnimatedToggleGroup
           value={status}
           onChange={(v) => setStatus(v as StatusFilter)}
           options={[
@@ -164,18 +161,16 @@ function DashboardPage() {
         />
       </section>
 
-      <section className="mt-4 rounded-md border border-border overflow-hidden">
+      <section className="mt-4 rounded-[10px] border border-border overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-sm text-muted-foreground">
-            Carregando…
-          </div>
+          <div className="p-8 text-center text-sm text-muted-foreground">Carregando…</div>
         ) : tickets.length === 0 ? (
           <div className="p-10 text-center text-sm text-muted-foreground">
             Nenhum chamado encontrado.
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-surface text-xs uppercase tracking-wider text-muted-foreground">
+          <table className="w-full text-[1rem]">
+            <thead className="bg-surface text-[1rem] uppercase tracking-wider text-muted-foreground">
               <tr>
                 <th className="text-left px-4 py-3 font-medium">Chamado</th>
                 <th className="text-left px-4 py-3 font-medium">Setor</th>
@@ -185,10 +180,7 @@ function DashboardPage() {
             </thead>
             <tbody>
               {tickets.map((t) => (
-                <tr
-                  key={t.id}
-                  className="border-t border-border hover:bg-surface/60"
-                >
+                <tr key={t.id} className="border-t border-border hover:bg-surface/60">
                   <td className="px-4 py-3">
                     <Link
                       to="/admin/chamados/$id"
@@ -197,17 +189,15 @@ function DashboardPage() {
                     >
                       {t.title}
                     </Link>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <p className="text-[1rem] text-muted-foreground mt-0.5">
                       {t.user_name_snapshot} · {departmentLabel(t.department)}
                     </p>
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {t.sector?.name ?? "—"}
-                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">{t.sector?.name ?? "—"}</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={t.status} />
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground text-xs">
+                  <td className="px-4 py-3 text-muted-foreground text-[1rem]">
                     {format(new Date(t.created_at), "dd/MM HH:mm", {
                       locale: ptBR,
                     })}
@@ -233,9 +223,7 @@ function StatCard({
 }) {
   return (
     <div className="rounded-md border border-border bg-surface px-4 py-3">
-      <p className="text-xs uppercase tracking-widest text-muted-foreground">
-        {label}
-      </p>
+      <p className="text-xs uppercase tracking-widest text-muted-foreground">{label}</p>
       <p
         className={cn(
           "mt-2 text-2xl font-semibold tabular-nums",
@@ -245,35 +233,6 @@ function StatCard({
       >
         {value}
       </p>
-    </div>
-  );
-}
-
-function FilterGroup<T extends string>({
-  value,
-  onChange,
-  options,
-}: {
-  value: T;
-  onChange: (v: T) => void;
-  options: { value: T; label: string }[];
-}) {
-  return (
-    <div className="inline-flex rounded-md border border-border bg-surface p-0.5">
-      {options.map((o) => (
-        <button
-          key={o.value}
-          onClick={() => onChange(o.value)}
-          className={cn(
-            "px-3 py-1.5 text-xs rounded-[4px] transition-colors",
-            value === o.value
-              ? "bg-surface-2 text-foreground"
-              : "text-muted-foreground hover:text-foreground",
-          )}
-        >
-          {o.label}
-        </button>
-      ))}
     </div>
   );
 }

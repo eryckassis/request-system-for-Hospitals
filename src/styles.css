@@ -1,18 +1,13 @@
-
-
 @import "tailwindcss" source(none);
 @import "tw-animate-css";
 
-
 @font-face {
   font-family: "instrument Serif";
-  src:url("/fonts/instrumentSerif-italic.ttf")format("truetype");
-  font-style: italic
+  src: url("/fonts/instrumentSerif-italic.ttf") format("truetype");
+  font-style: italic;
   font-weight: 400;
-  font-display: swap
+  font-display: swap;
 }
-
-
 
 @source "../src";
 
@@ -51,7 +46,9 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
- 
+  --color-toggle-active: var(--toggle-active);
+  --color-toggle-active-foreground: var(--toggle-active-foreground);
+
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -93,13 +90,16 @@
   --destructive: #ef4444;
   --destructive-foreground: #fafafa;
 
-  --success: #22c55e;
-  --warning: #f59e0b;
+  --success: #fff;
+  --warning: #fff;
+
+  --toggle-active: #5227ff;
+  --toggle-active-foreground: #fafafa;
 
   --border: #1a1a1a;
   --input: #1a1a1a;
   --ring: #ffffff;
- 
+
   --sidebar: #0a0a0a;
   --sidebar-foreground: #fafafa;
   --sidebar-primary: #ffffff;

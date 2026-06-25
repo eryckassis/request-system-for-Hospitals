@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -16,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAdmin } from "@/hooks/use-admin";
-import { usePageEnter } from "@/hooks/use-gsap";
+import { usePageEnter, buttonTextSlideHoverHandlers } from "@/hooks/use-gsap";
 
 export const Route = createFileRoute("/_authenticated/admin/usuarios")({
   component: UsersPage,
@@ -46,10 +47,7 @@ function UsersPage() {
     },
   });
 
-  const sectorMap = useMemo(
-    () => new Map(sectors.map((s) => [s.id, s])),
-    [sectors],
-  );
+  const sectorMap = useMemo(() => new Map(sectors.map((s) => [s.id, s])), [sectors]);
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["users", depts],
@@ -91,7 +89,7 @@ function UsersPage() {
 
   return (
     <div ref={ref} className="px-4 md:px-8 py-6 md:py-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-semibold tracking-tight">Usuários</h1>
+      <h1 className="text-4xl font-instrument italic tracking-tight">Usuários</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Cadastre as pessoas vinculadas aos setores.
       </p>
@@ -126,9 +124,21 @@ function UsersPage() {
             </SelectContent>
           </Select>
         </div>
-        <Button type="submit" disabled={creating || !name.trim() || !sectorId}>
-          {creating && <Loader2 className="size-4 mr-2 animate-spin" />}
-          Adicionar
+        <Button
+          type="submit"
+          disabled={creating || !name.trim() || !sectorId}
+          {...buttonTextSlideHoverHandlers()}
+          className="gap-2 bg-[#5227FF] text-white hover:bg-[#4521d9]"
+        >
+          {creating && <Loader2 className="size-4 shrink-0 animate-spin" />}
+          <span className="relative inline-flex h-[1.25em] flex-col overflow-hidden">
+            <span className="button-slide-text inline-flex h-[1.25em] items-center will-change-transform">
+              Adicionar
+            </span>
+            <span className="button-slide-text inline-flex h-[1.25em] items-center will-change-transform">
+              Adicionar
+            </span>
+          </span>
         </Button>
       </form>
 

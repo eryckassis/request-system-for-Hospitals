@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 // eslint-disable-next-line prettier/prettier
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Wrench, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { usePageEnter, cardHoverHandlers, buttonTextSlideHoverHandlers } from "@/hooks/use-gsap";
 import Silk from "@/components/Silk";
 import { Cast } from "@/components/animate-ui/icons/cast";

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
@@ -12,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusBadge, departmentLabel } from "@/components/status-badge";
 import { useAdmin } from "@/hooks/use-admin";
-import { usePageEnter } from "@/hooks/use-gsap";
+import { usePageEnter, buttonTextSlideHoverHandlers } from "@/hooks/use-gsap";
 
 export const Route = createFileRoute("/_authenticated/admin/relatorios")({
   component: ReportsPage,
@@ -73,12 +74,7 @@ function ReportsPage() {
         ? format(new Date(t.resolved_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
         : "",
       Responsavel: t.resolver?.name ?? "",
-      Sucesso:
-        t.resolved_successfully === null
-          ? ""
-          : t.resolved_successfully
-            ? "Sim"
-            : "Não",
+      Sucesso: t.resolved_successfully === null ? "" : t.resolved_successfully ? "Sim" : "Não",
       Observacoes: t.resolution_notes ?? "",
     }));
     const csv = Papa.unparse(rows);
@@ -97,14 +93,24 @@ function ReportsPage() {
     <div ref={ref} className="px-4 md:px-8 py-6 md:py-8 max-w-6xl mx-auto">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Relatórios</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Exporte chamados por período.
-          </p>
+          <h1 className="text-4xl font-instrument italic tracking-tight">Relatórios</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Exporte chamados por período.</p>
         </div>
-        <Button onClick={exportCsv} disabled={tickets.length === 0}>
-          <Download className="size-4 mr-2" />
-          Exportar CSV
+        <Button
+          onClick={exportCsv}
+          disabled={tickets.length === 0}
+          {...buttonTextSlideHoverHandlers()}
+          className="gap-2 bg-[#5227FF] text-white hover:bg-[#4521d9]"
+        >
+          <Download className="size-4 shrink-0" />
+          <span className="relative inline-flex h-[1.25em] flex-col overflow-hidden">
+            <span className="button-slide-text inline-flex h-[1.25em] items-center will-change-transform">
+              Exportar CSV
+            </span>
+            <span className="button-slide-text inline-flex h-[1.25em] items-center will-change-transform">
+              Exportar CSV
+            </span>
+          </span>
         </Button>
       </header>
 
@@ -140,9 +146,7 @@ function ReportsPage() {
 
       <section className="mt-4 rounded-md border border-border overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-sm text-muted-foreground">
-            Carregando…
-          </div>
+          <div className="p-8 text-center text-sm text-muted-foreground">Carregando…</div>
         ) : tickets.length === 0 ? (
           <div className="p-10 text-center text-sm text-muted-foreground">
             Nenhum chamado no período.
@@ -164,13 +168,10 @@ function ReportsPage() {
                   <td className="px-4 py-3">
                     <p className="font-medium">{t.title}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {t.user_name_snapshot} ·{" "}
-                      {departmentLabel(t.department)}
+                      {t.user_name_snapshot} · {departmentLabel(t.department)}
                     </p>
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {t.sector?.name ?? "—"}
-                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">{t.sector?.name ?? "—"}</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={t.status} />
                   </td>
@@ -199,9 +200,7 @@ function ReportsPage() {
 function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-md border border-border bg-surface px-4 py-3">
-      <p className="text-xs uppercase tracking-widest text-muted-foreground">
-        {label}
-      </p>
+      <p className="text-xs uppercase tracking-widest text-muted-foreground">{label}</p>
       <p className="mt-2 text-2xl font-semibold tabular-nums">{value}</p>
     </div>
   );
