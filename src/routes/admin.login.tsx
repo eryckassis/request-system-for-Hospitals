@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { buttonTextSlideHoverHandlers, usePageEnter } from "@/hooks/use-gsap";
+import { useLenis } from "@/hooks/use-lenis";
 
 export const Route = createFileRoute("/admin/login")({
   head: () => ({ meta: [{ title: "Acesso admin — Sistema de Chamados" }] }),
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/admin/login")({
 });
 
 function AdminLoginPage() {
+  useLenis();
   const navigate = useNavigate();
   const ref = usePageEnter<HTMLDivElement>();
   const [email, setEmail] = useState("");

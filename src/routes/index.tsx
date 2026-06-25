@@ -3,6 +3,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { usePageEnter, cardHoverHandlers, buttonTextSlideHoverHandlers } from "@/hooks/use-gsap";
+import { useLenis } from "@/hooks/use-lenis";
 import Silk from "@/components/Silk";
 import { Cast } from "@/components/animate-ui/icons/cast";
 import { Hammer } from "@/components/animate-ui/icons/hammer";
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
+  useLenis();
   const ref = usePageEnter<HTMLDivElement>();
 
   return (
