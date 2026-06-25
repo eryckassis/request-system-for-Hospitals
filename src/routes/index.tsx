@@ -6,6 +6,8 @@ import { usePageEnter, cardHoverHandlers, buttonTextSlideHoverHandlers } from "@
 import Silk from "@/components/Silk";
 import { Cast } from "@/components/animate-ui/icons/cast";
 import { Hammer } from "@/components/animate-ui/icons/hammer";
+import { useLenisGsap } from "@/hooks/use-lenis-gsap";
+import { HomeFooter} from "@/components/HomeFooter";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -27,6 +29,7 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const ref = usePageEnter<HTMLDivElement>();
+  const scrollToTop = useLenisGsap();
 
   return (
     <div
@@ -53,6 +56,7 @@ function Home() {
           </div>
           <Link
             to="/admin/login"
+            data-lenis-prevent
             {...buttonTextSlideHoverHandlers()}
             className=" inline-flex cursor-pointer rounded bg-[#5227FF] px-2 py-2 text-[1.30rem] font-[420] text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)] focus:outline-none focus:ring-2 focus:ring-ring"
           >
@@ -108,11 +112,7 @@ function Home() {
         </div>
       </main>
 
-      <footer className="border-t border-border">
-        <div className="mx-auto max-w-5xl px-6 py-4 text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Sistema de Chamados.
-        </div>
-      </footer>
+      <HomeFooter onScrollToTop={scrollToTop} />
     </div>
   );
 }
@@ -139,6 +139,7 @@ function DeptCard({
     <Link
       to={to}
       search={{ dept }}
+      data-lenis-prevent
       {...cardHoverHandlers()}
       className="group block rounded-[10px] border border-border bg-surface p-6 transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
     >

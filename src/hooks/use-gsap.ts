@@ -8,6 +8,53 @@ export function loadGsap() {
   return gsapPromise;
 }
 
+
+// adicionar em src/hooks/use-gsap.ts
+export function circleArrowHoverHandlers(iconSelector = ".footer-arrow-icon") {
+  return {
+    onMouseEnter: (e: MouseEvent<HTMLElement>) => {
+      const target = e.currentTarget;
+      const icon = target.querySelector(iconSelector);
+
+      void loadGsap().then((gsap) => {
+        gsap.to(target, {
+          scale: 1.08,
+          duration: 0.2,
+          ease: "power2.out",
+          overwrite: "auto",
+        });
+
+        gsap.to(icon, {
+          y: -3,
+          duration: 0.2,
+          ease: "power2.out",
+          overwrite: "auto",
+        });
+      });
+    },
+    onMouseLeave: (e: MouseEvent<HTMLElement>) => {
+      const target = e.currentTarget;
+      const icon = target.querySelector(iconSelector);
+
+      void loadGsap().then((gsap) => {
+        gsap.to(target, {
+          scale: 1,
+          duration: 0.2,
+          ease: "power2.out",
+          overwrite: "auto",
+        });
+
+        gsap.to(icon, {
+          y: 0,
+          duration: 0.2,
+          ease: "power2.out",
+          overwrite: "auto",
+        });
+      });
+    },
+  };
+}
+
 /** Page enter — fade + slide up. Apply to a wrapping element. */
 export function usePageEnter<T extends HTMLElement = HTMLDivElement>() {
   const ref = useRef<T | null>(null);

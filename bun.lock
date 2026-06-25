@@ -46,6 +46,7 @@
         "embla-carousel-react": "^8.6.0",
         "gsap": "^3.15.0",
         "input-otp": "^1.4.2",
+        "lenis": "^1.3.23",
         "lucide-react": "^0.575.0",
         "motion": "^12.40.0",
         "papaparse": "^5.5.3",
@@ -1531,6 +1532,8 @@
     "lambda-local": ["lambda-local@2.2.0", "", { "dependencies": { "commander": "^10.0.1", "dotenv": "^16.3.1", "winston": "^3.10.0" }, "bin": { "lambda-local": "build/cli.js" } }, "sha512-bPcgpIXbHnVGfI/omZIlgucDqlf4LrsunwoKue5JdZeGybt8L6KyJz2Zu19ffuZwIwLj2NAI2ZyaqNT6/cetcg=="],
 
     "lazystream": ["lazystream@1.0.1", "", { "dependencies": { "readable-stream": "^2.0.5" } }, "sha512-b94GiNHQNy6JNTrt5w6zNyffMrNkXZb3KTkCZJb2V1xaEGCk093vkZ2jk3tpaeP33/OiXC+WvK9AxUebnf5nbw=="],
+
+    "lenis": ["lenis@1.3.23", "", { "peerDependencies": { "@nuxt/kit": ">=3.0.0", "react": ">=17.0.0", "vue": ">=3.0.0" }, "optionalPeers": ["@nuxt/kit", "react", "vue"] }, "sha512-YxYq3TJqj9sJNv0V9SkyQHejt14xwyIwgDaaMK89Uf9SxQfIszu+gTQSSphh6BWlLTNVKvvXAGkg+Zf+oFIevg=="],
 
     "leven": ["leven@3.1.0", "", {}, "sha512-qsda+H8jTaUaN/x5vzW2rzc+8Rw4TAQ/4KjB46IwK5VH+IlVeeeje/EoZRpiXvIqjFgK84QffqPztGI3VBLG1A=="],
 
