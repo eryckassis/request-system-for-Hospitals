@@ -8,6 +8,13 @@
   font-weight: 400;
   font-display: swap;
 }
+@font-face {
+  font-family: "Aeonik";
+  src: url("/fonts/Aeonik-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 @source "../src";
 
@@ -58,6 +65,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --font-instrument-serif: "Instrument Serif", serif;
+  --font-aeonik-regular: "Aeonik", sans-serif;
   --font-sans: "SF Pro Display", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-instrument: "Instrument Serif", Georgia, "Times New Roman", serif;
 }

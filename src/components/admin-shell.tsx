@@ -76,7 +76,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             to={item.to}
             onClick={() => setOpen(false)}
             className={cn(
-              "flex items-center  gap-2 rounded-md px-3 py-2 text-sm transition-colors",
+              "flex items-center font-aeonik-regular  gap-2 rounded-md px-3 py-2 text-sm transition-colors",
               active
                 ? "bg-surface-2 text-foreground"
                 : "text-muted-foreground hover:bg-surface-2/60 hover:text-foreground",
@@ -126,11 +126,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <Link
           to="/admin"
           onClick={() => setOpen(false)}
-          className="text-2xl font-semibold tracking-tight"
+          className="text-2xl font-aeonik-regular tracking-tight"
         >
           Sistema de Chamados
         </Link>
-        <p className="mt-1 text-[11px] uppercase text-muted-foreground">
+        <p className="mt-1 text-[11px] uppercase font-aeonik-regular  text-muted-foreground">
           {admin.isSuper ? "Administrador Geral" : admin.departments.join(" · ") || "Admin"}
         </p>
       </div>
@@ -150,7 +150,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <button
           onClick={signOut}
           {...buttonTextSlideHoverHandlers()}
-          className="w-full flex cursor-pointer items-center justify-center gap-2 rounded-md bg-[#5227FF] px-3 py-2 text-sm font-medium text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:bg-[#4521d9] focus:outline-none focus:ring-2 focus:ring-ring"
+          className="w-full font-aeonik-regular  flex cursor-pointer items-center justify-center gap-2 rounded-md bg-[#5227FF] px-3 py-2 text-sm font-medium text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:bg-[#4521d9] focus:outline-none focus:ring-2 focus:ring-ring"
         >
           <LogOut className="size-4 shrink-0" />
           <span className="relative inline-flex h-[1.25em] flex-col overflow-hidden">

@@ -1,13 +1,11 @@
 /* eslint-disable prettier/prettier */
 // eslint-disable-next-line prettier/prettier
+
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
-import { usePageEnter, cardHoverHandlers, buttonTextSlideHoverHandlers } from "@/hooks/use-gsap";
-import Silk from "@/components/Silk";
-import { Cast } from "@/components/animate-ui/icons/cast";
-import { Hammer } from "@/components/animate-ui/icons/hammer";
+import { ArrowDownRight, ArrowRight } from "lucide-react";
+import { usePageEnter, buttonTextSlideHoverHandlers } from "@/hooks/use-gsap";
 import { useLenisGsap } from "@/hooks/use-lenis-gsap";
-import { HomeFooter} from "@/components/HomeFooter";
+import { HomeFooter } from "@/components/HomeFooter";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -34,37 +32,36 @@ function Home() {
   return (
     <div
       ref={ref}
-      className="relative isolate min-h-screen overflow-hidden bg-background flex flex-col"
+      className="relative isolate min-h-screen overflow-hidden bg-[#f4f4f8] text-[#0a0a0a] flex flex-col"
     >
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0">
-        <Silk speed={3} scale={1} color="#5227FF" noiseIntensity={1.2} rotation={0} />
-        <div className="absolute inset-0 bg-background/20" />
-      </div>
-      <header className="relative z-10   border-border bg-background/20 backdrop-blur-sm">
-        <div className="mx-auto max-w-5xl px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+      <header className="relative z-10">
+        <div className="w-full px-8 py-6 flex items-center justify-between sm:px-12 lg:px-16">
+          <div className="flex items-center gap-3">
             <img
               src="/logo.png"
               alt="Logo do Sistema de Chamados"
-              className="size-15 object-contain"
+              className="size-14 object-contain"
             />
             <div className="flex flex-col">
-              <span className="font-semibold text-[1.4rem] tracking-tight">Hospital Ubarana</span>
-
-              <span className="text-[1.1rem] text-muted-foreground">Sistema de Chamados</span>
+              <span className="font-aeonik-regular text-[1.25rem] tracking-tight text-[#0a0a0a]">
+                Hospital Ubarana
+              </span>
+              <span className="font-aeonik-regular text-[0.89rem] text-[#0a0a0a]/60">
+                Sistema de Chamados
+              </span>
             </div>
           </div>
           <Link
             to="/admin/login"
             data-lenis-prevent
             {...buttonTextSlideHoverHandlers()}
-            className=" inline-flex cursor-pointer rounded bg-[#5227FF] px-2 py-2 text-[1.30rem] font-[420] text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)] focus:outline-none focus:ring-2 focus:ring-ring"
+            className="inline-flex cursor-pointer rounded bg-[#5227FF] px-5 py-2.5 text-[1rem] font-[420] text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)] focus:outline-none focus:ring-2 focus:ring-ring"
           >
-            <span className="relative inline-flex h-[1.4em] flex-col overflow-hidden">
-              <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+            <span className="relative text-[1.28rem] inline-flex h-[1.8em] flex-col overflow-hidden">
+              <span className="button-slide-text inline-flex h-[1.8em] items-center will-change-transform">
                 Acesso admin
               </span>
-              <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+              <span className="button-slide-text inline-flex h-[1.8em] items-center will-change-transform">
                 Acesso admin
               </span>
             </span>
@@ -72,42 +69,45 @@ function Home() {
         </div>
       </header>
 
-      <main className="relative z-10 flex-1 flex items-center">
-        <div className="mx-auto max-w-5xl w-full px-6 py-16">
-          <div className="max-w-2xl">
-            <p className=" text-sm text-muted-foreground mb-3 uppercase tracking-widest">
-              Sistema interno
-            </p>
-            <h1 className="font-instrument-serif italic text-6xl sm:text-7xl  tracking-tight leading-[1.09]">
-              Abra um chamado em segundos.
-            </h1>
-            <p className="mt-4 text-muted-foreground text-lg max-w-xl">
-              Escolha o departamento responsável. Sem cadastro, sem login.
-            </p>
+      <main className="relative z-10 flex-1 flex flex-col">
+        <div className="w-full px-8 pt-8 pb-20 sm:px-12 lg:px-16">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-5 sm:gap-8">
+            <div className="min-w-0">
+              <h1 className="font-aeonik-regular uppercase tracking-normal leading-[0.82] text-[5.5rem] text-[#0a0a0a] sm:text-[8rem] md:text-[12rem] lg:text-[16rem] xl:text-[19rem] 2xl:text-[22rem]">
+                Hospital
+              </h1>
+              <p className="mt-5 ml-2 font-aeonik-regular uppercase tracking-normal leading-none text-[2rem] text-[#0a0a0a]/50 sm:ml-4 sm:text-[2.75rem] md:text-[3.5rem] lg:ml-5 lg:text-[4.25rem]">
+                Ubarana
+              </p>
+            </div>
+
+            <div className="flex shrink-0 flex-col items-end pt-3 font-aeonik-regular text-[#0a0a0a]/70 sm:pt-6 lg:pt-7">
+              <span className="mr-2 text-lg leading-none sm:mr-4 sm:text-3xl lg:mr-8 lg:text-7xl">
+                26
+              </span>
+              <ArrowDownRight
+                strokeWidth={0.8}
+                className="text-black  mt-8 size-10 sm:mt-16 sm:size-14 lg:mt-19 lg:size-39"
+                aria-hidden="true"
+              />
+            </div>
           </div>
 
-          <div className="mt-12 grid gap-4 sm:grid-cols-2">
+          <div className="font-aeonik-regular text-black mt-20 grid justify-items-center gap-10 sm:grid-cols-2">
             <DeptCard
               to="/chamados/novo"
               dept="ti"
-              title="Suporte de TI"
-              subtitle="Computadores, rede, sistemas e periféricos."
-              Icon={Cast}
-              animateIcon
+              title="Suporte TI"
+              categories={["computadores", "redes", "sistemas", "periféricos"]}
+              image="/images/suporte-tii.jpg"
             />
             <DeptCard
               to="/chamados/novo"
               dept="manutencao"
               title="Manutenção"
-              subtitle="Elétrica, hidráulica, mobiliário e infraestrutura."
-              Icon={Hammer}
-              animateIcon
+              categories={["hidráulica", "elétrica", "mobiliário", "infraestrutura"]}
+              image="/images/manutencao.jpg"
             />
-          </div>
-
-          <div className="mt-10 text-sm text-muted-foreground">
-            Já tem um número de chamado? Acesse{" "}
-            <span className="text-foreground">/chamados/&lt;ID&gt;</span> para acompanhar.
           </div>
         </div>
       </main>
@@ -121,41 +121,46 @@ function DeptCard({
   to,
   dept,
   title,
-  subtitle,
-  Icon,
-  animateIcon = false,
+  categories,
+  image,
 }: {
   to: "/chamados/novo";
   dept: "ti" | "manutencao";
   title: string;
-  subtitle: string;
-  Icon: React.ComponentType<{
-    className?: string;
-    animateOnHover?: boolean;
-  }>;
-  animateIcon?: boolean;
+  categories: string[];
+  image: string;
 }) {
   return (
     <Link
       to={to}
       search={{ dept }}
       data-lenis-prevent
-      {...cardHoverHandlers()}
-      className="group block rounded-[10px] border border-border bg-surface p-6 transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
+      {...buttonTextSlideHoverHandlers()}
+      className="group block max-w-[720px] focus:outline-none focus:ring-2 focus:ring-ring"
     >
-      <div className="flex items-start justify-between">
-        <div className="size-11 rounded-md bg-white/5 border border-border flex items-center justify-center">
-          <Icon className="size-6" animateOnHover={animateIcon} />
-        </div>
-        <span className="card-arrow-bg flex size-9 items-center justify-center overflow-hidden rounded-[5px] bg-[#5227FF] border border-white/10 will-change-transform">
-          <span className="relative inline-flex h-5 flex-col overflow-hidden">
-            <ArrowRight className="card-arrow-icon size-5 shrink-0 text-white will-change-transform" />
-            <ArrowRight className="card-arrow-icon size-5 shrink-0 text-white will-change-transform" />
+      <div className="aspect-5/3 overflow-hidden rounded-md">
+        <img
+          src={image}
+          alt={title}
+          className="card-parallax-img h-full w-full scale-100 object-cover will-change-transform"
+        />
+      </div>
+
+      <p className="mt-5 font-aeonik-regular text-[1.20rem] uppercase tracking-widest text-black">
+        {categories.join(" • ")}
+      </p>
+
+      <div className="mt-2 flex items-center gap-4">
+        <h2 className="font-aeonik-regular text-4xl sm:text-5xl tracking-tight text-[#0a0a0a]">
+          {title}
+        </h2>
+        <span className="flex size-11 items-center justify-center overflow-hidden rounded-full bg-[#5227FF] opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          <span className="relative inline-flex h-5 w-5 flex-col overflow-hidden">
+            <ArrowRight className="button-slide-text size-5 shrink-0 text-white will-change-transform" />
+            <ArrowRight className="button-slide-text size-5 shrink-0 text-white will-change-transform" />
           </span>
         </span>
       </div>
-      <h2 className="mt-6 text-2xl font-semibold tracking-tight">{title}</h2>
-      <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
     </Link>
   );
 }

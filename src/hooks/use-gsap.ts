@@ -8,8 +8,47 @@ export function loadGsap() {
   return gsapPromise;
 }
 
+export function imageParallaxHoverHandlers(imgSelector = ".card-parallax-img") {
+  return {
+    onMouseMove: (e: MouseEvent<HTMLElement>) => {
+      const container = e.currentTarget;
+      const img = container.querySelector(imgSelector);
+      if (!img) return;
 
-// adicionar em src/hooks/use-gsap.ts
+      const rect = container.getBoundingClientRect();
+      const relX = (e.clientX - rect.left) / rect.width - 0.5;
+      const relY = (e.clientY - rect.right) / rect.height - 0.5;
+
+      void loadGsap().then((gsap) => {
+        gsap.to(img, {
+          x: relX * 24,
+          y: relY * 24,
+          scale: 1.08,
+          duration: 0.4,
+          ease: "power2.out",
+          overwrite: "auto",
+        });
+      });
+    },
+    onmouseleave: (e: MouseEvent<HTMLElement>) => {
+      const container = e.currentTarget;
+      const img = container.querySelector(imgSelector);
+      if (!img) return;
+
+      void loadGsap().then((gsap) => {
+        gsap.to(img, {
+          x: 0,
+          y: 0,
+          scale: 1,
+          duration: 0.4,
+          ease: "power2.out",
+          overwrite: "auto",
+        });
+      });
+    },
+  };
+}
+
 export function circleArrowHoverHandlers(iconSelector = ".footer-arrow-icon") {
   return {
     onMouseEnter: (e: MouseEvent<HTMLElement>) => {
