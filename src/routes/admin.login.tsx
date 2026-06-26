@@ -3,13 +3,13 @@ import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { buttonTextSlideHoverHandlers, usePageEnter } from "@/hooks/use-gsap";
-import { useLenis } from "@/hooks/use-lenis";
+import { HomeFooter } from "@/components/HomeFooter";
+import { useLenisGsap } from "@/hooks/use-lenis-gsap";
 
 export const Route = createFileRoute("/admin/login")({
   head: () => ({ meta: [{ title: "Acesso admin — Sistema de Chamados" }] }),
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/admin/login")({
 });
 
 function AdminLoginPage() {
-  useLenis();
+  const scrollToTop = useLenisGsap();
   const navigate = useNavigate();
   const ref = usePageEnter<HTMLDivElement>();
   const [email, setEmail] = useState("");
@@ -38,65 +38,69 @@ function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6">
-      <div ref={ref} className="w-full max-w-sm">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground text-center">
-          Painel administrativo
-        </p>
-        <h1 className=" font-instrument italic mt-3 text-3xl  tracking-tight text-center">
-          Entrar
-        </h1>
+    <div className="min-h-screen flex flex-col">
+      <main className="flex flex-1 items-center justify-center px-6 py-16">
+        <div ref={ref} className="w-full max-w-sm">
+          <p className=" font-aeonik-regular text-[1rem] uppercase tracking-widest text-gray-400 text-center">
+            Painel administrativo
+          </p>
+          <h1 className=" font-instrument italic mt-3 text-[2.5rem]  tracking-tight text-center">
+            Entrar
+          </h1>
 
-        <form onSubmit={onSubmit} className="mt-8 space-y-4">
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1.5"
-            />
-          </div>
-          <div>
-            <Label htmlFor="password">Senha</Label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1.5"
-            />
-          </div>
-          <Button
-            type="submit"
-            className="w-full bg-[#5227FF] text-white hover:bg-[#5227FF]/90"
-            disabled={loading}
-            {...buttonTextSlideHoverHandlers()}
+          <form onSubmit={onSubmit} className=" font-aeonik-regular mt-8 space-y-4">
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1.5"
+              />
+            </div>
+            <div>
+              <Label htmlFor="password">Senha</Label>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1.5"
+              />
+            </div>
+            <Button
+              type="submit"
+              className="w-full bg-[#5227FF] text-white hover:bg-[#5227FF]/90"
+              disabled={loading}
+              {...buttonTextSlideHoverHandlers()}
+            >
+              {loading && <Loader2 className="size-4 mr-2 animate-spin" />}
+              <span className="relative inline-flex h-[1.4em] flex-col overflow-hidden">
+                <span className=" text-[1rem] button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+                  Entrar
+                </span>
+                <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+                  Entrar
+                </span>
+              </span>
+            </Button>
+          </form>
+
+          <Link
+            to="/"
+            className="font-aeonik-regular mt-6 block text-center text-xl text-gray-400 hover:text-foreground"
           >
-            {loading && <Loader2 className="size-4 mr-2 animate-spin" />}
-            <span className="relative inline-flex h-[1.4em] flex-col overflow-hidden">
-              <span className=" button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
-                Entrar
-              </span>
-              <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
-                Entrar
-              </span>
-            </span>
-          </Button>
-        </form>
+            ← Voltar ao início
+          </Link>
+        </div>
+      </main>
 
-        <Link
-          to="/"
-          className="mt-6 block text-center text-sm text-muted-foreground hover:text-foreground"
-        >
-          ← Voltar ao início
-        </Link>
-      </div>
+      <HomeFooter onScrollToTop={scrollToTop} adminLinkLabel="Página inicial" adminLinkTo="/" />
     </div>
   );
 }

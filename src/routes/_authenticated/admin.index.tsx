@@ -109,7 +109,7 @@ function DashboardPage() {
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="font-instrument italic  text-4xl  tracking-tight">Dashboard</h1>
-          <p className="mt-1 text-[1rem] text-muted-foreground">
+          <p className="mt-1 text-[1rem] font-aeonik-regular  text-muted-foreground">
             Visão geral dos chamados em aberto.
           </p>
         </div>
@@ -119,7 +119,7 @@ function DashboardPage() {
             {...buttonTextSlideHoverHandlers()}
             className="inline-flex cursor-pointer rounded bg-[#5227FF] px-2 py-2 text-[1.30rem] font-[420] text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)] focus:outline-none focus:ring-2 focus:ring-ring"
           >
-            <span className="relative inline-flex h-[1.4em] flex-col overflow-hidden">
+            <span className="relative font-aeonik-regular  inline-flex h-[1.4em] flex-col overflow-hidden">
               <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
                 Ver relatórios
               </span>
@@ -131,7 +131,7 @@ function DashboardPage() {
         )}
       </header>
 
-      <section className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
+      <section className="mt-6 font-aeonik-regular  grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard label="Total" value={stats.total} />
         <StatCard label="Pendentes" value={stats.pending} tone="warning" />
         <StatCard label="Em andamento" value={stats.inProgress} />
@@ -170,12 +170,12 @@ function DashboardPage() {
           </div>
         ) : (
           <table className="w-full text-[1rem]">
-            <thead className="bg-surface text-[1rem] uppercase tracking-wider text-muted-foreground">
+            <thead className="bg-surface text-[1rem] font-aeonik-regular  uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="text-left px-4 py-3 font-medium">Chamado</th>
-                <th className="text-left px-4 py-3 font-medium">Setor</th>
-                <th className="text-left px-4 py-3 font-medium">Status</th>
-                <th className="text-left px-4 py-3 font-medium">Aberto</th>
+                <th className="text-left px-4 py-3 font-aeonik-regular ">Chamado</th>
+                <th className="text-left px-4 py-3 font-aeonik-regular ">Setor</th>
+                <th className="text-left px-4 py-3 font-aeonik-regular ">Status</th>
+                <th className="text-left px-4 py-3 font-aeonik-regular ">Aberto</th>
               </tr>
             </thead>
             <tbody>
@@ -185,7 +185,7 @@ function DashboardPage() {
                     <Link
                       to="/admin/chamados/$id"
                       params={{ id: t.id }}
-                      className="font-medium hover:underline"
+                      className="font-aeonik-regular  hover:underline"
                     >
                       {t.title}
                     </Link>
@@ -197,7 +197,7 @@ function DashboardPage() {
                   <td className="px-4 py-3">
                     <StatusBadge status={t.status} />
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground text-[1rem]">
+                  <td className="px-4 py-3 font-aeonik-regular  text-muted-foreground text-[1rem]">
                     {format(new Date(t.created_at), "dd/MM HH:mm", {
                       locale: ptBR,
                     })}
@@ -226,7 +226,7 @@ function StatCard({
       <p className="text-xs uppercase tracking-widest text-muted-foreground">{label}</p>
       <p
         className={cn(
-          "mt-2 text-2xl font-semibold tabular-nums",
+          "mt-2 text-2xl font-aeonik-regular  tabular-nums",
           tone === "success" && "text-success",
           tone === "warning" && "text-warning",
         )}
