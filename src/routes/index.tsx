@@ -26,7 +26,6 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  useLenis();
   const ref = usePageEnter<HTMLDivElement>();
   const scrollToTop = useLenisGsap();
 
