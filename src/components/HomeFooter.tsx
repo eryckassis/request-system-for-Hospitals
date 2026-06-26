@@ -106,9 +106,9 @@ export function HomeFooter({
               </span>
             </Link>
           </div>
-          <div className="relative left-1/2 mt-15 flex w-screen -translate-x-1/2 items-center justify-between px-8 text-foreground sm:px-12 lg:px-16">
+          <div className="relative left-1/2 mt-16 flex w-screen -translate-x-1/2 items-center justify-between px-8 text-foreground sm:px-12 lg:px-16">
             {Array.from({ length: 5 }).map((_, index) => (
-              <Plus key={index} className="size-8" aria-hidden="true" />
+              <Plus key={index} className="size-9" aria-hidden="true" />
             ))}
           </div>
         </div>
