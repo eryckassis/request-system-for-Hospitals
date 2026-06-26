@@ -1,10 +1,12 @@
 /* eslint-disable prettier/prettier */
 // eslint-disable-next-line prettier/prettier
 
+import { useEffect, useRef } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowDownRight, ArrowRight } from "lucide-react";
-import { usePageEnter, buttonTextSlideHoverHandlers } from "@/hooks/use-gsap";
+import { usePageEnter, buttonTextSlideHoverHandlers, loadGsap } from "@/hooks/use-gsap";
 import { useLenisGsap } from "@/hooks/use-lenis-gsap";
+//import GradualBlur from "@/components/GradualBlur";
 import { HomeFooter } from "@/components/HomeFooter";
 
 export const Route = createFileRoute("/")({
@@ -27,7 +29,39 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const ref = usePageEnter<HTMLDivElement>();
+  const heroRef = useRef<HTMLDivElement | null>(null);
   const scrollToTop = useLenisGsap();
+
+  useEffect(() => {
+    let cancelled = false;
+    let cleanup = () => {};
+
+    void loadGsap().then((gsap) => {
+      if (cancelled || !heroRef.current) return;
+
+      const ctx = gsap.context(() => {
+        gsap.fromTo(
+          "[data-hero-reveal]",
+          { yPercent: 120, opacity: 0 },
+          {
+            yPercent: 0,
+            opacity: 1,
+            duration: 0.9,
+            ease: "power4.out",
+            stagger: 0.08,
+            delay: 0.12,
+          },
+        );
+      }, heroRef);
+
+      cleanup = () => ctx.revert();
+    });
+
+    return () => {
+      cancelled = true;
+      cleanup();
+    };
+  }, []);
 
   return (
     <div
@@ -43,7 +77,7 @@ function Home() {
               className="size-14 object-contain"
             />
             <div className="flex flex-col">
-              <span className="font-aeonik-regular text-[1.25rem] tracking-tight text-[#0a0a0a]">
+              <span className="font-aeonik-regular text-[1.30rem] tracking-tight text-[#0a0a0a]">
                 Hospital Ubarana
               </span>
               <span className="font-aeonik-regular text-[0.89rem] text-[#0a0a0a]/60">
@@ -71,25 +105,33 @@ function Home() {
 
       <main className="relative z-10 flex-1 flex flex-col">
         <div className="w-full px-8 pt-8 pb-20 sm:px-12 lg:px-16">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-5 sm:gap-8">
+          <div ref={heroRef} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-5 sm:gap-8">
             <div className="min-w-0">
-              <h1 className="font-aeonik-regular uppercase tracking-normal leading-[0.82] text-[5.5rem] text-[#0a0a0a] sm:text-[8rem] md:text-[12rem] lg:text-[16rem] xl:text-[19rem] 2xl:text-[22rem]">
-                Hospital
+              <h1 className="overflow-hidden font-aeonik-regular uppercase tracking-normal leading-[0.82] text-[5.5rem] text-[#0a0a0a] sm:text-[8rem] md:text-[12rem] lg:text-[16rem] xl:text-[15rem] 2xl:text-[22rem]">
+                <span data-hero-reveal className="inline-block will-change-transform">
+                  Hospital
+                </span>
               </h1>
-              <p className="mt-5 ml-2 font-aeonik-regular uppercase tracking-normal leading-none text-[2rem] text-[#0a0a0a]/50 sm:ml-4 sm:text-[2.75rem] md:text-[3.5rem] lg:ml-5 lg:text-[4.25rem]">
-                Ubarana
+              <p className="mt-3 ml-2 overflow-hidden font-aeonik-regular uppercase tracking-normal leading-none text-[2rem] text-[#0a0a0a]/50 sm:ml-4 sm:text-[2.75rem] md:text-[3.5rem] lg:ml-3 lg:text-[6.25rem]">
+                <span data-hero-reveal className="inline-block will-change-transform">
+                  Ubarana
+                </span>
               </p>
             </div>
 
-            <div className="flex shrink-0 flex-col items-end pt-3 font-aeonik-regular text-[#0a0a0a]/70 sm:pt-6 lg:pt-7">
-              <span className="mr-2 text-lg leading-none sm:mr-4 sm:text-3xl lg:mr-8 lg:text-7xl">
-                26
+            <div className="flex shrink-0 flex-col items-end pt-3 font-aeonik-regular text-[#0a0a0a]/70 sm:pt-6 lg:pt-2">
+              <span className="mr-2 overflow-hidden text-lg leading-none sm:mr-4 sm:text-3xl lg:mr-8 lg:text-7xl">
+                <span data-hero-reveal className="inline-block will-change-transform">
+                  26
+                </span>
               </span>
-              <ArrowDownRight
-                strokeWidth={0.8}
-                className="text-black  mt-8 size-10 sm:mt-16 sm:size-14 lg:mt-19 lg:size-39"
-                aria-hidden="true"
-              />
+              <span data-hero-reveal className="mt-8 inline-block overflow-hidden will-change-transform sm:mt-16 lg:mt-19">
+                <ArrowDownRight
+                  strokeWidth={0.8}
+                  className="size-10 text-black sm:size-14 lg:size-39"
+                  aria-hidden="true"
+                />
+              </span>
             </div>
           </div>
 
@@ -105,8 +147,8 @@ function Home() {
               to="/chamados/novo"
               dept="manutencao"
               title="Manutenção"
-              categories={["hidráulica", "elétrica", "mobiliário", "infraestrutura"]}
-              image="/images/manutencao.jpg"
+              categories={["infraestrutura", "elétrica", "mobiliário"]}
+              image="/images/manutencao1.jpg"
             />
           </div>
         </div>
@@ -146,7 +188,7 @@ function DeptCard({
         />
       </div>
 
-      <p className="mt-5 font-aeonik-regular text-[1.20rem] uppercase tracking-widest text-black">
+      <p className="mt-5 whitespace-nowrap font-aeonik-regular text-[1.25rem] uppercase tracking-widest text-black">
         {categories.join(" • ")}
       </p>
 
