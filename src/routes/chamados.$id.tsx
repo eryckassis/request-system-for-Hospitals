@@ -6,7 +6,7 @@ import { ptBR } from "date-fns/locale";
 
 import { supabase } from "@/integrations/supabase/client";
 import { StatusBadge, departmentLabel } from "@/components/status-badge";
-import { usePageEnter } from "@/hooks/use-gsap";
+import { buttonTextSlideHoverHandlers, usePageEnter } from "@/hooks/use-gsap";
 import { resolveTicketImageUrls } from "@/lib/image-url";
 
 const ticketQuery = (id: string) =>
@@ -75,10 +75,32 @@ function TicketViewPage() {
         <div className="mx-auto max-w-3xl px-6 py-4 flex items-center justify-between">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            aria-label="Início"
+            data-lenis-prevent
+            {...buttonTextSlideHoverHandlers()}
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            <ArrowLeft className="size-4" />
-            Início
+            <span className="relative inline-flex size-4 flex-col overflow-hidden">
+              <ArrowLeft
+                aria-hidden="true"
+                className="button-slide-text size-4 shrink-0 will-change-transform"
+              />
+              <ArrowLeft
+                aria-hidden="true"
+                className="button-slide-text size-4 shrink-0 will-change-transform"
+              />
+            </span>
+            <span className="relative inline-flex h-[1.2em] flex-col overflow-hidden">
+              <span className="button-slide-text inline-flex h-[1.2em] items-center will-change-transform">
+                Início
+              </span>
+              <span
+                aria-hidden="true"
+                className="button-slide-text inline-flex h-[1.2em] items-center will-change-transform"
+              >
+                Início
+              </span>
+            </span>
           </Link>
           <span className="text-xs text-muted-foreground font-mono">
             #{t.id.slice(0, 8)}

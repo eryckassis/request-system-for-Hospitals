@@ -105,11 +105,16 @@ function Home() {
 
       <main className="relative z-10 flex-1 flex flex-col">
         <div className="w-full px-8 pt-8 pb-20 sm:px-12 lg:px-16">
-          <div ref={heroRef} className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-5 sm:gap-8">
+          <div
+            ref={heroRef}
+            className="grid grid-cols-[minmax(0,1fr)_clamp(3rem,7vw,8.5rem)] items-start gap-[clamp(0.75rem,2vw,2rem)]"
+          >
             <div className="min-w-0">
-              <h1 className="overflow-hidden font-aeonik-regular uppercase tracking-normal leading-[0.82] text-[5.5rem] text-[#0a0a0a] sm:text-[8rem] md:text-[12rem] lg:text-[16rem] xl:text-[15rem] 2xl:text-[22rem]">
-                <span data-hero-reveal className="inline-block will-change-transform">
-                  Hospital
+              <h1 className="font-aeonik-regular text-[clamp(5.5rem,17.1vw,15rem)] uppercase leading-[0.82] tracking-normal text-[#0a0a0a]">
+                <span className="block overflow-hidden whitespace-nowrap">
+                  <span data-hero-reveal className="inline-block will-change-transform">
+                    Hospital
+                  </span>
                 </span>
               </h1>
               <p className="mt-3 ml-2 overflow-hidden font-aeonik-regular uppercase tracking-normal leading-none text-[2rem] text-[#0a0a0a]/50 sm:ml-4 sm:text-[2.75rem] md:text-[3.5rem] lg:ml-3 lg:text-[6.25rem]">
@@ -119,16 +124,16 @@ function Home() {
               </p>
             </div>
 
-            <div className="flex shrink-0 flex-col items-end pt-3 font-aeonik-regular text-[#0a0a0a]/70 sm:pt-6 lg:pt-2">
-              <span className="mr-2 overflow-hidden text-lg leading-none sm:mr-4 sm:text-3xl lg:mr-8 lg:text-7xl">
+            <div className="flex w-[clamp(3rem,7vw,8.5rem)] shrink-0 flex-col items-end pt-[clamp(0.45rem,1.8vw,2rem)] font-aeonik-regular text-[#0a0a0a]/70">
+              <span className="mr-[clamp(0.25rem,1vw,2rem)] overflow-hidden text-[clamp(1.125rem,4vw,4.5rem)] leading-none">
                 <span data-hero-reveal className="inline-block will-change-transform">
                   26
                 </span>
               </span>
-              <span data-hero-reveal className="mt-8 inline-block overflow-hidden will-change-transform sm:mt-16 lg:mt-19">
+              <span data-hero-reveal className="mt-[clamp(2rem,5.25vw,5.5rem)] inline-block overflow-hidden will-change-transform">
                 <ArrowDownRight
                   strokeWidth={0.8}
-                  className="size-10 text-black sm:size-14 lg:size-39"
+                  className="size-[clamp(2.5rem,7vw,9.75rem)] text-black"
                   aria-hidden="true"
                 />
               </span>
