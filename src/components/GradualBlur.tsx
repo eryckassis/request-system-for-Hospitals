@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import React, {
   type CSSProperties,
   type PropsWithChildren,
@@ -6,7 +7,6 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { createPortal } from "react-dom";
 
 type GradualBlurProps = PropsWithChildren<{
   position?: "top" | "bottom" | "left" | "right";
@@ -184,21 +184,11 @@ const useIntersectionObserver = (
 const GradualBlur: React.FC<GradualBlurProps> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
   const [isHovered, setIsHovered] = useState(false);
-  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
 
   const config = useMemo(() => {
     const presetConfig = props.preset && PRESETS[props.preset] ? PRESETS[props.preset] : {};
     return mergeConfigs(DEFAULT_CONFIG, presetConfig, props) as Required<GradualBlurProps>;
   }, [props]);
-
-  useEffect(() => {
-    if (config.target === "page") {
-      setPortalTarget(document.body);
-      return;
-    }
-
-    setPortalTarget(null);
-  }, [config.target]);
 
   const responsiveHeight = useResponsiveDimension(config.responsive, config, "height");
   const responsiveWidth = useResponsiveDimension(config.responsive, config, "width");
@@ -287,7 +277,7 @@ const GradualBlur: React.FC<GradualBlurProps> = (props) => {
     }
   }, [isVisible, config]);
 
-  const blurElement = (
+  return (
     <div
       ref={containerRef}
       className={`gradual-blur relative isolate ${
@@ -301,12 +291,6 @@ const GradualBlur: React.FC<GradualBlurProps> = (props) => {
       {props.children && <div className="relative">{props.children}</div>}
     </div>
   );
-
-  if (config.target === "page" && portalTarget) {
-    return createPortal(blurElement, portalTarget);
-  }
-
-  return blurElement;
 };
 
 const GradualBlurMemo = React.memo(GradualBlur);
