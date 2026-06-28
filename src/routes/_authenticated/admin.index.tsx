@@ -134,7 +134,7 @@ function DashboardPage() {
       <section className="mt-6 font-aeonik-regular  grid grid-cols-2 md:grid-cols-4 gap-3">
         <StatCard label="Total" value={stats.total} />
         <StatCard label="Pendentes" value={stats.pending} tone="warning" />
-        <StatCard label="Em andamento" value={stats.inProgress} />
+        <StatCard label="Resolvendo" value={stats.inProgress} />
         <StatCard label="Resolvidos" value={stats.resolved} tone="success" />
       </section>
 

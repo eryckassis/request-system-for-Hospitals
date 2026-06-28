@@ -75,7 +75,7 @@ function AdminLoginPage() {
             </div>
             <Button
               type="submit"
-              className="w-full bg-[#5227FF] text-white hover:bg-[#5227FF]/90"
+              className="w-full bg-[#5227ff] text-white hover:bg-[#5227ff]/90"
               disabled={loading}
               {...buttonTextSlideHoverHandlers()}
             >

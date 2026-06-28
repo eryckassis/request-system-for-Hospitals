@@ -12,14 +12,10 @@ function shouldPreventLenis(node: HTMLElement) {
   if (
     node.closest(
       [
-        "a",
-        "button",
         "input",
         "textarea",
         "select",
         "summary",
-        "[role='button']",
-        "[role='link']",
         "[contenteditable='true']",
         "[data-lenis-prevent]",
       ].join(","),
@@ -75,16 +71,36 @@ export function useLenisGsap() {
 
       const lenis = new lenisModule.default(lenisOptions);
       lenisRef.current = lenis;
+      let scrollEndTimer: ReturnType<typeof window.setTimeout> | undefined;
+
+      const setLenisScrolling = () => {
+        document.documentElement.dataset.lenisScrolling = "true";
+
+        if (scrollEndTimer) {
+          window.clearTimeout(scrollEndTimer);
+        }
+
+        scrollEndTimer = window.setTimeout(() => {
+          delete document.documentElement.dataset.lenisScrolling;
+        }, 180);
+      };
 
       const tick = (time: number) => {
         lenis.raf(time * 1000);
       };
 
+      lenis.on("scroll", setLenisScrolling);
       gsap.ticker.add(tick);
       gsap.ticker.lagSmoothing(0);
 
       cleanup = () => {
         gsap.ticker.remove(tick);
+
+        if (scrollEndTimer) {
+          window.clearTimeout(scrollEndTimer);
+        }
+
+        delete document.documentElement.dataset.lenisScrolling;
         lenis.destroy();
 
         if (lenisRef.current === lenis) {

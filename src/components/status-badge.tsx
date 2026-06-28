@@ -11,7 +11,7 @@ const MAP: Record<Status, { label: string; className: string; Icon: typeof Clock
     Icon: Clock,
   },
   in_progress: {
-    label: "Em andamento",
+    label: "Resolvendo",
     className: "bg-[#5227FF] text-white ",
     Icon: Loader2,
   },

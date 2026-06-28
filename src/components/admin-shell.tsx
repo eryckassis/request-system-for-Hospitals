@@ -135,7 +135,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </p>
       </div>
 
-      <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <NavLinks />
       </nav>
 
@@ -167,7 +167,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <div className="min-h-screen md:flex">
+    <div className="min-h-screen md:flex md:h-dvh md:overflow-hidden">
       {/* Mobile top bar */}
       <header className="md:hidden sticky top-0 z-30 flex items-center justify-between border-b border-border bg-surface px-4 py-3">
         <Link to="/admin" className="text-sm font-semibold tracking-tight">
@@ -205,11 +205,13 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-60 border-r border-border bg-surface flex-col shrink-0">
+      <aside className="hidden h-dvh w-60 shrink-0 flex-col border-r border-border bg-surface md:flex">
         {SidebarBody}
       </aside>
 
-      <main className="flex-1 min-w-0">{children}</main>
+      <main className="min-w-0 flex-1 md:h-dvh md:overflow-y-auto md:[scrollbar-width:none] md:[&::-webkit-scrollbar]:hidden">
+        {children}
+      </main>
     </div>
   );
 }
