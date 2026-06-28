@@ -18,7 +18,7 @@ export function HomeFooter({
   return (
     <footer className="relative z-10 overflow-hidden">
       <section className="border-border bg-[#5527FF]">
-        <div className="grid w-full grid-cols-1 items-center gap-8 px-8 py-8 text-sm text-white sm:px-12 lg:grid-cols-[1fr_auto_1fr_auto] lg:px-16">
+        <div className="mt-48 grid w-full grid-cols-1 items-center gap-8 px-8 py-8 text-sm text-white sm:px-12 lg:grid-cols-[1fr_auto_1fr_auto] lg:px-16">
           <div className="justify-self-start">
             <p className="text-[1.25rem] uppercase font-aeonik-regular tracking-widest text-foreground">
               Sistema interno
@@ -68,13 +68,15 @@ export function HomeFooter({
           <div className="grid gap-10 md:grid-cols-[1fr_auto] md:items-center">
             <div>
               <p className="max-w-50 text-[1.25rem] font-aeonik-regular uppercase leading-tight text-foreground">
-                Continue rolando
+                Em Implementação
                 <br />
-                para saber mais
+                Novidade em breve
               </p>
 
-              <h2 className="mt-12 text-5xl font-aeonik-regular tracking-tight text-foreground sm:text-6xl md:text-8xl">
-                Hospital Ubarana
+              <h2 className="mt-12 text-5xl font-aeonik-regular tracking-tight text-foreground sm:text-6xl md:text-5xl">
+                Hospital
+                <br className="hidden md:block lg:hidden" />
+                <span className="md:ml- lg:ml-3"> Ubarana</span>
               </h2>
             </div>
 

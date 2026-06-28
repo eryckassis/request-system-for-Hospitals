@@ -75,7 +75,7 @@
   --radius: 0.375rem; /* 6px */
 
   --background: #000000;
-  --foreground: #fafafa;
+  --foreground: #ffffff;
   --surface: #0a0a0a;
 
   --card: #0a0a0a;
@@ -141,4 +141,13 @@
     background-color: #ffffff;
     color: #000000;
   }
+}
+
+html[data-lenis-scrolling="true"] .dept-card {
+  pointer-events: none;
+}
+
+html[data-lenis-scrolling="true"] .dept-card,
+html[data-lenis-scrolling="true"] .dept-card * {
+  transition: none !important;
 }
