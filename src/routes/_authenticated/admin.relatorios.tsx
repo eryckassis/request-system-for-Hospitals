@@ -5,21 +5,30 @@ import { useQuery } from "@tanstack/react-query";
 import { format, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import Papa from "papaparse";
-import { Download } from "lucide-react";
+import { Download, FileSpreadsheet } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { StatusBadge, departmentLabel } from "@/components/status-badge";
-import { useAdmin } from "@/hooks/use-admin";
+import { AnimatedToggleGroup } from "@/components/ui/animated-toggle-group";
+import { useAdmin, type Department } from "@/hooks/use-admin";
 import { usePageEnter, buttonTextSlideHoverHandlers } from "@/hooks/use-gsap";
 
 export const Route = createFileRoute("/_authenticated/admin/relatorios")({
   component: ReportsPage,
 });
 
+type StatusFilter = "all" | "pending" | "in_progress" | "resolved";
+type DeptFilter = Department | "all";
+
 const isoDate = (d: Date) => format(d, "yyyy-MM-dd");
+
+const STATUS_LABEL: Record<Exclude<StatusFilter, "all">, string> = {
+  pending: "Pendentes",
+  in_progress: "Em andamento",
+  resolved: "Concluídos",
+};
 
 function ReportsPage() {
   const ref = usePageEnter<HTMLDivElement>();
@@ -29,20 +38,29 @@ function ReportsPage() {
   const today = new Date();
   const [from, setFrom] = useState(isoDate(startOfMonth(today)));
   const [to, setTo] = useState(isoDate(endOfMonth(today)));
+  const [status, setStatus] = useState<StatusFilter>("all");
+  const [dept, setDept] = useState<DeptFilter>("all");
+
+  const effectiveDepts = useMemo(
+    () => (dept === "all" ? depts : [dept]),
+    [dept, depts],
+  );
 
   const { data: tickets = [], isLoading } = useQuery({
-    queryKey: ["report-tickets", depts, from, to],
-    enabled: depts.length > 0,
+    queryKey: ["report-tickets", effectiveDepts, from, to, status],
+    enabled: effectiveDepts.length > 0,
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from("tickets")
         .select(
           "id, title, description, status, department, created_at, resolved_at, resolved_successfully, resolution_notes, user_name_snapshot, sector:sectors(name), resolver:admins(name)",
         )
-        .in("department", depts)
+        .in("department", effectiveDepts)
         .gte("created_at", `${from}T00:00:00`)
         .lte("created_at", `${to}T23:59:59`)
         .order("created_at", { ascending: false });
+      if (status !== "all") q = q.eq("status", status);
+      const { data, error } = await q;
       if (error) throw error;
       return data ?? [];
     },
@@ -53,9 +71,10 @@ function ReportsPage() {
     const success = resolved.filter((t) => t.resolved_successfully).length;
     return {
       total: tickets.length,
+      pending: tickets.filter((t) => t.status === "pending").length,
+      inProgress: tickets.filter((t) => t.status === "in_progress").length,
       resolved: resolved.length,
       success,
-      pending: tickets.filter((t) => t.status !== "resolved").length,
     };
   }, [tickets]);
 
@@ -63,28 +82,32 @@ function ReportsPage() {
     const rows = tickets.map((t) => ({
       ID: t.id,
       Titulo: t.title,
+      Descricao: t.description,
       Departamento: departmentLabel(t.department),
       Setor: t.sector?.name ?? "",
       Solicitante: t.user_name_snapshot,
-      Status: t.status,
-      "Aberto em": format(new Date(t.created_at), "dd/MM/yyyy HH:mm", {
-        locale: ptBR,
-      }),
+      Status:
+        t.status === "pending"
+          ? "Pendente"
+          : t.status === "in_progress"
+            ? "Em andamento"
+            : "Concluído",
+      "Aberto em": format(new Date(t.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR }),
       "Resolvido em": t.resolved_at
         ? format(new Date(t.resolved_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
         : "",
       Responsavel: t.resolver?.name ?? "",
-      Sucesso: t.resolved_successfully === null ? "" : t.resolved_successfully ? "Sim" : "Não",
+      Sucesso:
+        t.resolved_successfully === null ? "" : t.resolved_successfully ? "Sim" : "Não",
       Observacoes: t.resolution_notes ?? "",
     }));
-    const csv = Papa.unparse(rows);
-    const blob = new Blob([`\uFEFF${csv}`], {
-      type: "text/csv;charset=utf-8;",
-    });
+    const csv = Papa.unparse(rows, { quotes: true });
+    const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
+    const suffix = status === "all" ? "todos" : status;
     a.href = url;
-    a.download = `chamados-${from}_${to}.csv`;
+    a.download = `chamados_${suffix}_${from}_a_${to}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -94,80 +117,120 @@ function ReportsPage() {
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-4xl font-instrument italic tracking-tight">Relatórios</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Exporte chamados por período.</p>
+          <p className="mt-1 text-[1rem] font-aeonik-regular text-muted-foreground">
+            Filtre por status e período, e exporte em CSV.
+          </p>
         </div>
-        <Button
+        <button
+          type="button"
           onClick={exportCsv}
           disabled={tickets.length === 0}
           {...buttonTextSlideHoverHandlers()}
-          className="gap-2 bg-[#5227FF] text-white hover:bg-[#4521d9]"
+          className="inline-flex cursor-pointer items-center gap-2 rounded bg-[#5227FF] px-3 py-2 text-[1.15rem] font-[420] text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)] focus:outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Download className="size-4 shrink-0" />
-          <span className="relative inline-flex h-[1.25em] flex-col overflow-hidden">
-            <span className="button-slide-text inline-flex h-[1.25em] items-center will-change-transform">
+          <span className="relative font-aeonik-regular inline-flex h-[1.4em] flex-col overflow-hidden">
+            <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
               Exportar CSV
             </span>
-            <span className="button-slide-text inline-flex h-[1.25em] items-center will-change-transform">
+            <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
               Exportar CSV
             </span>
           </span>
-        </Button>
+        </button>
       </header>
 
-      <section className="mt-6 grid md:grid-cols-[1fr_1fr_auto] gap-3 items-end">
-        <div>
-          <Label htmlFor="from">De</Label>
-          <Input
-            id="from"
-            type="date"
-            value={from}
-            onChange={(e) => setFrom(e.target.value)}
-            className="mt-1.5"
-          />
+      {/* Filtros */}
+      <section className="mt-6 rounded-[10px] border border-border bg-surface/40 p-4 md:p-5">
+        <div className="grid md:grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="from" className="text-[0.95rem] font-aeonik-regular text-muted-foreground">
+              De
+            </Label>
+            <Input
+              id="from"
+              type="date"
+              value={from}
+              onChange={(e) => setFrom(e.target.value)}
+              max={to}
+              className="mt-1.5"
+            />
+          </div>
+          <div>
+            <Label htmlFor="to" className="text-[0.95rem] font-aeonik-regular text-muted-foreground">
+              Até
+            </Label>
+            <Input
+              id="to"
+              type="date"
+              value={to}
+              onChange={(e) => setTo(e.target.value)}
+              min={from}
+              className="mt-1.5"
+            />
+          </div>
         </div>
-        <div>
-          <Label htmlFor="to">Até</Label>
-          <Input
-            id="to"
-            type="date"
-            value={to}
-            onChange={(e) => setTo(e.target.value)}
-            className="mt-1.5"
+
+        <div className="mt-5 flex flex-wrap gap-2">
+          {depts.length > 1 && (
+            <AnimatedToggleGroup
+              value={dept}
+              onChange={(v) => setDept(v as DeptFilter)}
+              options={[
+                { value: "all", label: "Todos setores" },
+                ...depts.map((d) => ({ value: d, label: departmentLabel(d) })),
+              ]}
+            />
+          )}
+          <AnimatedToggleGroup
+            value={status}
+            onChange={(v) => setStatus(v as StatusFilter)}
+            options={[
+              { value: "all", label: "Todos" },
+              { value: "pending", label: "Pendentes" },
+              { value: "in_progress", label: "Em andamento" },
+              { value: "resolved", label: "Concluídos" },
+            ]}
           />
         </div>
       </section>
 
-      <section className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Stat label="Total" value={stats.total} />
-        <Stat label="Em aberto" value={stats.pending} />
-        <Stat label="Resolvidos" value={stats.resolved} />
-        <Stat label="Com sucesso" value={stats.success} />
+      {/* Stats */}
+      <section className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3 font-aeonik-regular">
+        <Stat label="Total no período" value={stats.total} />
+        <Stat label="Pendentes" value={stats.pending} />
+        <Stat label="Em andamento" value={stats.inProgress} />
+        <Stat label="Concluídos" value={stats.resolved} />
       </section>
 
-      <section className="mt-4 rounded-md border border-border overflow-hidden">
+      {/* Tabela */}
+      <section className="mt-4 rounded-[10px] border border-border overflow-hidden">
         {isLoading ? (
           <div className="p-8 text-center text-sm text-muted-foreground">Carregando…</div>
         ) : tickets.length === 0 ? (
-          <div className="p-10 text-center text-sm text-muted-foreground">
-            Nenhum chamado no período.
+          <div className="p-10 text-center">
+            <FileSpreadsheet className="mx-auto size-8 text-muted-foreground/60" />
+            <p className="mt-3 text-sm text-muted-foreground">
+              Nenhum chamado{status !== "all" ? ` ${STATUS_LABEL[status].toLowerCase()}` : ""} no período selecionado.
+            </p>
           </div>
         ) : (
-          <table className="w-full text-sm">
-            <thead className="bg-surface text-xs uppercase tracking-wider text-muted-foreground">
+          <table className="w-full text-[1rem]">
+            <thead className="bg-surface text-[0.9rem] font-aeonik-regular uppercase tracking-wider text-muted-foreground">
               <tr>
-                <th className="text-left px-4 py-3 font-medium">Chamado</th>
-                <th className="text-left px-4 py-3 font-medium">Setor</th>
-                <th className="text-left px-4 py-3 font-medium">Status</th>
-                <th className="text-left px-4 py-3 font-medium">Aberto</th>
-                <th className="text-left px-4 py-3 font-medium">Resolvido</th>
+                <th className="text-left px-4 py-3 font-aeonik-regular">Chamado</th>
+                <th className="text-left px-4 py-3 font-aeonik-regular">Setor</th>
+                <th className="text-left px-4 py-3 font-aeonik-regular">Status</th>
+                <th className="text-left px-4 py-3 font-aeonik-regular">Aberto</th>
+                <th className="text-left px-4 py-3 font-aeonik-regular">Resolvido</th>
               </tr>
             </thead>
             <tbody>
               {tickets.map((t) => (
                 <tr key={t.id} className="border-t border-border">
                   <td className="px-4 py-3">
-                    <p className="font-medium">{t.title}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">
+                    <p className="font-aeonik-regular">{t.title}</p>
+                    <p className="text-[0.9rem] text-muted-foreground mt-0.5">
                       {t.user_name_snapshot} · {departmentLabel(t.department)}
                     </p>
                   </td>
@@ -175,16 +238,12 @@ function ReportsPage() {
                   <td className="px-4 py-3">
                     <StatusBadge status={t.status} />
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground text-xs">
-                    {format(new Date(t.created_at), "dd/MM HH:mm", {
-                      locale: ptBR,
-                    })}
+                  <td className="px-4 py-3 text-muted-foreground text-[0.9rem]">
+                    {format(new Date(t.created_at), "dd/MM HH:mm", { locale: ptBR })}
                   </td>
-                  <td className="px-4 py-3 text-muted-foreground text-xs">
+                  <td className="px-4 py-3 text-muted-foreground text-[0.9rem]">
                     {t.resolved_at
-                      ? format(new Date(t.resolved_at), "dd/MM HH:mm", {
-                          locale: ptBR,
-                        })
+                      ? format(new Date(t.resolved_at), "dd/MM HH:mm", { locale: ptBR })
                       : "—"}
                   </td>
                 </tr>
@@ -199,8 +258,8 @@ function ReportsPage() {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-md border border-border bg-surface px-4 py-3">
-      <p className="text-xs uppercase tracking-widest text-muted-foreground">{label}</p>
+    <div className="rounded-[10px] border border-border bg-surface px-4 py-3">
+      <p className="text-[0.85rem] uppercase tracking-widest text-muted-foreground">{label}</p>
       <p className="mt-2 text-2xl font-semibold tabular-nums">{value}</p>
     </div>
   );
