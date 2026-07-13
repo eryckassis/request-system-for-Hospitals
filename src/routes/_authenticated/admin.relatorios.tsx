@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import Papa from "papaparse";
+import ExcelJS from "exceljs";
 import { Download, FileSpreadsheet } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
@@ -108,7 +109,6 @@ function ReportsPage() {
       Observacoes: safe(t.resolution_notes),
     }));
 
-    // Delimitador ";" + BOM UTF-8 + CRLF: abre corretamente no Excel PT-BR com duplo clique
     const csv = Papa.unparse(rows, {
       quotes: true,
       delimiter: ";",
@@ -124,6 +124,97 @@ function ReportsPage() {
     URL.revokeObjectURL(url);
   };
 
+  const exportXlsx = async () => {
+    // Sanitiza contra injeção de fórmulas, PRESERVANDO quebras de linha (\n)
+    const safe = (v: string | null | undefined) => {
+      const s = (v ?? "").replace(/\r\n/g, "\n").trim();
+      return /^[=+\-@]/.test(s) ? `'${s}` : s;
+    };
+
+    const wb = new ExcelJS.Workbook();
+    wb.creator = "Sistema de Chamados";
+    wb.created = new Date();
+    const ws = wb.addWorksheet("Chamados", {
+      views: [{ state: "frozen", ySplit: 1 }],
+    });
+
+    // Colunas com largura personalizada — as colunas de texto longo têm mais espaço
+    ws.columns = [
+      { header: "ID", key: "id", width: 10 },
+      { header: "Título", key: "title", width: 32 },
+      { header: "Descrição", key: "description", width: 60 },
+      { header: "Departamento", key: "department", width: 18 },
+      { header: "Setor", key: "sector", width: 22 },
+      { header: "Solicitante", key: "requester", width: 24 },
+      { header: "Status", key: "status", width: 16 },
+      { header: "Aberto em", key: "opened_at", width: 18 },
+      { header: "Resolvido em", key: "resolved_at", width: 18 },
+      { header: "Responsável", key: "resolver", width: 22 },
+      { header: "Sucesso", key: "success", width: 10 },
+      { header: "Observações", key: "notes", width: 60 },
+    ];
+
+    // Estilo do cabeçalho
+    const header = ws.getRow(1);
+    header.font = { bold: true, color: { argb: "FFFFFFFF" } };
+    header.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF5227FF" },
+    };
+    header.alignment = { vertical: "middle", horizontal: "left", wrapText: true };
+    header.height = 22;
+
+    tickets.forEach((t) => {
+      ws.addRow({
+        id: safe(t.id),
+        title: safe(t.title),
+        description: safe(t.description),
+        department: safe(departmentLabel(t.department)),
+        sector: safe(t.sector?.name),
+        requester: safe(t.user_name_snapshot),
+        status:
+          t.status === "pending"
+            ? "Pendente"
+            : t.status === "in_progress"
+              ? "Em andamento"
+              : "Concluído",
+        opened_at: format(new Date(t.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+        resolved_at: t.resolved_at
+          ? format(new Date(t.resolved_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+          : "",
+        resolver: safe(t.resolver?.name),
+        success:
+          t.resolved_successfully === null ? "" : t.resolved_successfully ? "Sim" : "Não",
+        notes: safe(t.resolution_notes),
+      });
+    });
+
+    // Wrap text + alinhamento em todas as células de dados
+    ws.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) return;
+      row.alignment = { vertical: "top", wrapText: true };
+    });
+
+    // AutoFilter no cabeçalho (permite filtrar dentro do Excel também)
+    ws.autoFilter = {
+      from: { row: 1, column: 1 },
+      to: { row: 1, column: ws.columns.length },
+    };
+
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const suffix = status === "all" ? "todos" : status;
+    a.href = url;
+    a.download = `chamados_${suffix}_${from}_a_${to}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
 
   return (
     <div ref={ref} className="px-4 md:px-8 py-6 md:py-8 max-w-6xl mx-auto">
@@ -131,26 +222,45 @@ function ReportsPage() {
         <div>
           <h1 className="text-4xl font-instrument italic tracking-tight">Relatórios</h1>
           <p className="mt-1 text-[1rem] font-aeonik-regular text-muted-foreground">
-            Filtre por status e período, e exporte em CSV.
+            Filtre por status e período, e exporte em Excel ou CSV.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={exportCsv}
-          disabled={tickets.length === 0}
-          {...buttonTextSlideHoverHandlers()}
-          className="inline-flex cursor-pointer items-center gap-2 rounded bg-[#5227FF] px-3 py-2 text-[1.15rem] font-[420] text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)] focus:outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <Download className="size-4 shrink-0" />
-          <span className="relative font-aeonik-regular inline-flex h-[1.4em] flex-col overflow-hidden">
-            <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
-              Exportar CSV
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={exportXlsx}
+            disabled={tickets.length === 0}
+            {...buttonTextSlideHoverHandlers()}
+            className="inline-flex cursor-pointer items-center gap-2 rounded bg-[#5227FF] px-3 py-2 text-[1.15rem] font-[420] text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)] focus:outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <FileSpreadsheet className="size-4 shrink-0" />
+            <span className="relative font-aeonik-regular inline-flex h-[1.4em] flex-col overflow-hidden">
+              <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+                Exportar Excel
+              </span>
+              <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+                Exportar Excel
+              </span>
             </span>
-            <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
-              Exportar CSV
+          </button>
+          <button
+            type="button"
+            onClick={exportCsv}
+            disabled={tickets.length === 0}
+            {...buttonTextSlideHoverHandlers()}
+            className="inline-flex cursor-pointer items-center gap-2 rounded border border-border bg-surface px-3 py-2 text-[1.15rem] font-[420] text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Download className="size-4 shrink-0" />
+            <span className="relative font-aeonik-regular inline-flex h-[1.4em] flex-col overflow-hidden">
+              <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+                Exportar CSV
+              </span>
+              <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+                Exportar CSV
+              </span>
             </span>
-          </span>
-        </button>
+          </button>
+        </div>
       </header>
 
       {/* Filtros */}
