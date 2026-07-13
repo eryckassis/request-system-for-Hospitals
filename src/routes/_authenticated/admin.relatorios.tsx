@@ -109,7 +109,6 @@ function ReportsPage() {
       Observacoes: safe(t.resolution_notes),
     }));
 
-    // Delimitador ";" + BOM UTF-8 + CRLF: abre corretamente no Excel PT-BR com duplo clique
     const csv = Papa.unparse(rows, {
       quotes: true,
       delimiter: ";",
@@ -121,6 +120,97 @@ function ReportsPage() {
     const suffix = status === "all" ? "todos" : status;
     a.href = url;
     a.download = `chamados_${suffix}_${from}_a_${to}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const exportXlsx = async () => {
+    // Sanitiza contra injeção de fórmulas, PRESERVANDO quebras de linha (\n)
+    const safe = (v: string | null | undefined) => {
+      const s = (v ?? "").replace(/\r\n/g, "\n").trim();
+      return /^[=+\-@]/.test(s) ? `'${s}` : s;
+    };
+
+    const wb = new ExcelJS.Workbook();
+    wb.creator = "Sistema de Chamados";
+    wb.created = new Date();
+    const ws = wb.addWorksheet("Chamados", {
+      views: [{ state: "frozen", ySplit: 1 }],
+    });
+
+    // Colunas com largura personalizada — as colunas de texto longo têm mais espaço
+    ws.columns = [
+      { header: "ID", key: "id", width: 10 },
+      { header: "Título", key: "title", width: 32 },
+      { header: "Descrição", key: "description", width: 60 },
+      { header: "Departamento", key: "department", width: 18 },
+      { header: "Setor", key: "sector", width: 22 },
+      { header: "Solicitante", key: "requester", width: 24 },
+      { header: "Status", key: "status", width: 16 },
+      { header: "Aberto em", key: "opened_at", width: 18 },
+      { header: "Resolvido em", key: "resolved_at", width: 18 },
+      { header: "Responsável", key: "resolver", width: 22 },
+      { header: "Sucesso", key: "success", width: 10 },
+      { header: "Observações", key: "notes", width: 60 },
+    ];
+
+    // Estilo do cabeçalho
+    const header = ws.getRow(1);
+    header.font = { bold: true, color: { argb: "FFFFFFFF" } };
+    header.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "FF5227FF" },
+    };
+    header.alignment = { vertical: "middle", horizontal: "left", wrapText: true };
+    header.height = 22;
+
+    tickets.forEach((t) => {
+      ws.addRow({
+        id: safe(t.id),
+        title: safe(t.title),
+        description: safe(t.description),
+        department: safe(departmentLabel(t.department)),
+        sector: safe(t.sector?.name),
+        requester: safe(t.user_name_snapshot),
+        status:
+          t.status === "pending"
+            ? "Pendente"
+            : t.status === "in_progress"
+              ? "Em andamento"
+              : "Concluído",
+        opened_at: format(new Date(t.created_at), "dd/MM/yyyy HH:mm", { locale: ptBR }),
+        resolved_at: t.resolved_at
+          ? format(new Date(t.resolved_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
+          : "",
+        resolver: safe(t.resolver?.name),
+        success:
+          t.resolved_successfully === null ? "" : t.resolved_successfully ? "Sim" : "Não",
+        notes: safe(t.resolution_notes),
+      });
+    });
+
+    // Wrap text + alinhamento em todas as células de dados
+    ws.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) return;
+      row.alignment = { vertical: "top", wrapText: true };
+    });
+
+    // AutoFilter no cabeçalho (permite filtrar dentro do Excel também)
+    ws.autoFilter = {
+      from: { row: 1, column: 1 },
+      to: { row: 1, column: ws.columns.length },
+    };
+
+    const buffer = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const suffix = status === "all" ? "todos" : status;
+    a.href = url;
+    a.download = `chamados_${suffix}_${from}_a_${to}.xlsx`;
     a.click();
     URL.revokeObjectURL(url);
   };
