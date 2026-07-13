@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { format, startOfMonth, endOfMonth } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import Papa from "papaparse";
+import ExcelJS from "exceljs";
 import { Download, FileSpreadsheet } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
