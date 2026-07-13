@@ -71,7 +71,7 @@ export function useLenisGsap() {
 
       const lenis = new lenisModule.default(lenisOptions);
       lenisRef.current = lenis;
-      let scrollEndTimer: ReturnType<typeof window.setTimeout> | undefined;
+      let scrollEndTimer: number | undefined;
 
       const setLenisScrolling = () => {
         document.documentElement.dataset.lenisScrolling = "true";
