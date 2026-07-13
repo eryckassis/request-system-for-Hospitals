@@ -79,13 +79,19 @@ function ReportsPage() {
   }, [tickets]);
 
   const exportCsv = () => {
+    // Sanitiza texto para Excel: remove quebras de linha e evita injeção de fórmulas
+    const safe = (v: string | null | undefined) => {
+      const s = (v ?? "").replace(/\r?\n|\r/g, " ").replace(/\s+/g, " ").trim();
+      return /^[=+\-@]/.test(s) ? `'${s}` : s;
+    };
+
     const rows = tickets.map((t) => ({
-      ID: t.id,
-      Titulo: t.title,
-      Descricao: t.description,
-      Departamento: departmentLabel(t.department),
-      Setor: t.sector?.name ?? "",
-      Solicitante: t.user_name_snapshot,
+      ID: safe(t.id),
+      Titulo: safe(t.title),
+      Descricao: safe(t.description),
+      Departamento: safe(departmentLabel(t.department)),
+      Setor: safe(t.sector?.name),
+      Solicitante: safe(t.user_name_snapshot),
       Status:
         t.status === "pending"
           ? "Pendente"
@@ -96,12 +102,18 @@ function ReportsPage() {
       "Resolvido em": t.resolved_at
         ? format(new Date(t.resolved_at), "dd/MM/yyyy HH:mm", { locale: ptBR })
         : "",
-      Responsavel: t.resolver?.name ?? "",
+      Responsavel: safe(t.resolver?.name),
       Sucesso:
         t.resolved_successfully === null ? "" : t.resolved_successfully ? "Sim" : "Não",
-      Observacoes: t.resolution_notes ?? "",
+      Observacoes: safe(t.resolution_notes),
     }));
-    const csv = Papa.unparse(rows, { quotes: true });
+
+    // Delimitador ";" + BOM UTF-8 + CRLF: abre corretamente no Excel PT-BR com duplo clique
+    const csv = Papa.unparse(rows, {
+      quotes: true,
+      delimiter: ";",
+      newline: "\r\n",
+    });
     const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -111,6 +123,7 @@ function ReportsPage() {
     a.click();
     URL.revokeObjectURL(url);
   };
+
 
   return (
     <div ref={ref} className="px-4 md:px-8 py-6 md:py-8 max-w-6xl mx-auto">
