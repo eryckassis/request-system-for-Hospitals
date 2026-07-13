@@ -222,26 +222,45 @@ function ReportsPage() {
         <div>
           <h1 className="text-4xl font-instrument italic tracking-tight">Relatórios</h1>
           <p className="mt-1 text-[1rem] font-aeonik-regular text-muted-foreground">
-            Filtre por status e período, e exporte em CSV.
+            Filtre por status e período, e exporte em Excel ou CSV.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={exportCsv}
-          disabled={tickets.length === 0}
-          {...buttonTextSlideHoverHandlers()}
-          className="inline-flex cursor-pointer items-center gap-2 rounded bg-[#5227FF] px-3 py-2 text-[1.15rem] font-[420] text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)] focus:outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <Download className="size-4 shrink-0" />
-          <span className="relative font-aeonik-regular inline-flex h-[1.4em] flex-col overflow-hidden">
-            <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
-              Exportar CSV
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={exportXlsx}
+            disabled={tickets.length === 0}
+            {...buttonTextSlideHoverHandlers()}
+            className="inline-flex cursor-pointer items-center gap-2 rounded bg-[#5227FF] px-3 py-2 text-[1.15rem] font-[420] text-white shadow-[0_8px_24px_rgba(0,0,0,0.12)] focus:outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <FileSpreadsheet className="size-4 shrink-0" />
+            <span className="relative font-aeonik-regular inline-flex h-[1.4em] flex-col overflow-hidden">
+              <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+                Exportar Excel
+              </span>
+              <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+                Exportar Excel
+              </span>
             </span>
-            <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
-              Exportar CSV
+          </button>
+          <button
+            type="button"
+            onClick={exportCsv}
+            disabled={tickets.length === 0}
+            {...buttonTextSlideHoverHandlers()}
+            className="inline-flex cursor-pointer items-center gap-2 rounded border border-border bg-surface px-3 py-2 text-[1.15rem] font-[420] text-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Download className="size-4 shrink-0" />
+            <span className="relative font-aeonik-regular inline-flex h-[1.4em] flex-col overflow-hidden">
+              <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+                Exportar CSV
+              </span>
+              <span className="button-slide-text inline-flex h-[1.4em] items-center will-change-transform">
+                Exportar CSV
+              </span>
             </span>
-          </span>
-        </button>
+          </button>
+        </div>
       </header>
 
       {/* Filtros */}
