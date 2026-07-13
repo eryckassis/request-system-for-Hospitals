@@ -148,7 +148,7 @@ const useResponsiveDimension = (
         v = config[`desktop${k}` as keyof GradualBlurProps];
       }
 
-      setVal(v);
+      setVal(v as string | undefined);
     };
 
     const deb = debounce(calc, 100);
