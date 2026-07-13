@@ -129,7 +129,7 @@ const useResponsiveDimension = (
   config: Partial<GradualBlurProps>,
   key: keyof GradualBlurProps,
 ) => {
-  const [val, setVal] = useState(config[key]);
+  const [val, setVal] = useState<string | undefined>(config[key] as string | undefined);
 
   useEffect(() => {
     if (!responsive) return;
