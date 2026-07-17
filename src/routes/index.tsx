@@ -68,8 +68,8 @@ function Home() {
       ref={ref}
       className="relative isolate min-h-screen overflow-hidden bg-[#f4f4f8] text-[#0a0a0a] flex flex-col"
     >
-      <header className="relative z-10">
-        <div className="mt-10 w-full px-8 py-6 flex items-center justify-between sm:px-12 lg:px-16">
+      <header className="relative z-30">
+        <div className="relative z-30 mt-10 w-full px-8 py-6 flex items-center justify-between sm:px-12 lg:px-16">
           <div className="flex items-center gap-3">
             <img
               src="/logo.png"
@@ -89,7 +89,7 @@ function Home() {
             to="/admin/login"
             data-lenis-prevent
             {...buttonTextSlideHoverHandlers()}
-            className="inline-flex cursor-pointer rounded bg-[#5227FF] px-5 py-2.5 text-[1rem] font-[420] text-white  focus:outline-none focus:ring-2 focus:ring-ring"
+            className="relative z-40 inline-flex cursor-pointer rounded bg-[#5227FF] px-5 py-2.5 text-[1rem] font-[420] text-white focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <span className="relative text-[1.28rem] inline-flex h-[1.8em] flex-col overflow-hidden">
               <span className="button-slide-text inline-flex h-[1.8em] items-center will-change-transform">
@@ -103,9 +103,9 @@ function Home() {
         </div>
       </header>
 
-      <main className=" relative z-10 flex-1 flex flex-col">
-        <div className="mt-30  w-full  px-8 pt-8 pb-20 sm:px-12 lg:px-16">
-          <div
+      <main className="relative z-0 flex-1 flex flex-col">
+        <div className="mt-0 w-full px-8 pt-8 pb-20 sm:px-12 lg:px-16">
+          {/* <div
             ref={heroRef}
             className="grid  grid-cols-[minmax(0,1fr)_clamp(3rem,7vw,8.5rem)] items-start gap-[clamp(0.75rem,2vw,2rem)]"
           >
@@ -141,7 +141,7 @@ function Home() {
                 />
               </span>
             </div>
-          </div>
+          </div> */}
 
           <div className="mt-48 grid grid-cols-[repeat(auto-fit,minmax(min(100%,28rem),1fr))] items-start justify-items-center gap-x-10 gap-y-14 font-aeonik-regular text-black">
             <DeptCard

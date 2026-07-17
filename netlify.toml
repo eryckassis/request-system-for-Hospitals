@@ -1,7 +1,0 @@
-[build]
-  command = "bun run build"
-  publish = "dist/client"
-
-[build.environment]
-  SECRETS_SCAN_OMIT_KEYS = "SUPABASE_PROJECT_ID,SUPABASE_PUBLISHABLE_KEY,SUPABASE_URL,VITE_SUPABASE_PROJECT_ID,VITE_SUPABASE_PUBLISHABLE_KEY,VITE_SUPABASE_URL"
-  SECRETS_SCAN_OMIT_PATHS = "supabase/config.toml"
