@@ -29,7 +29,6 @@ function SectorsPage() {
   const { data: admin } = useAdmin();
   const qc = useQueryClient();
   const depts = admin?.departments ?? [];
-  const [sectorId, setSectorId] = useState("");
   const [name, setName] = useState("");
   const [dept, setDept] = useState<Department | "">("");
   const [creating, setCreating] = useState(false);
@@ -108,7 +107,7 @@ function SectorsPage() {
         </div>
         <Button
           type="submit"
-          disabled={creating || !name.trim() || !sectorId}
+          disabled={creating || !name.trim() || !dept}
           {...buttonTextSlideHoverHandlers()}
           className="gap-2 bg-[#5227FF] text-white hover:bg-[#4521d9]"
         >
