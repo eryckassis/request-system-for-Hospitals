@@ -96,16 +96,6 @@ function ConfigPage() {
     }
   };
 
-  const onResetPassword = async (id: string) => {
-    const pwd = prompt("Nova senha (mínimo 8 caracteres):");
-    if (!pwd || pwd.length < 8) return;
-    try {
-      await update({ data: { id, password: pwd } });
-      toast.success("Senha atualizada");
-    } catch (err: any) {
-      toast.error(err?.message ?? "Erro");
-    }
-  };
 
   const onDelete = async (id: string) => {
     if (!confirm("Excluir este admin?")) return;
@@ -237,13 +227,8 @@ function ConfigPage() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => onResetPassword(a.id)}
-                          className="text-xs text-muted-foreground hover:text-foreground underline"
-                        >
-                          Senha
-                        </button>
                         {!isMe && (
+
                           <button
                             onClick={() => onDelete(a.id)}
                             className="text-muted-foreground hover:text-destructive"
