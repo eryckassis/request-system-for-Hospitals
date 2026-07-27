@@ -96,16 +96,6 @@ function ConfigPage() {
     }
   };
 
-  const onResetPassword = async (id: string) => {
-    const pwd = prompt("Nova senha (mínimo 8 caracteres):");
-    if (!pwd || pwd.length < 8) return;
-    try {
-      await update({ data: { id, password: pwd } });
-      toast.success("Senha atualizada");
-    } catch (err: any) {
-      toast.error(err?.message ?? "Erro");
-    }
-  };
 
   const onDelete = async (id: string) => {
     if (!confirm("Excluir este admin?")) return;
