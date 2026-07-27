@@ -243,7 +243,7 @@ function ConfigPage() {
                         {!isMe && (
 
                           <button
-                            onClick={() => onDelete(a.id)}
+                            onClick={() => onDelete(a.id, a.email)}
                             className="text-muted-foreground hover:text-destructive"
                             aria-label="Excluir"
                           >
