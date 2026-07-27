@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
+import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
 
 type AppRole = "super" | "ti" | "manutencao";
 
@@ -34,16 +36,13 @@ export const listAdmins = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertSuper(context.supabase, context.userId);
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
     const [{ data: admins, error: aErr }, { data: roles, error: rErr }] =
       await Promise.all([
-        supabaseAdmin
+        context.supabase
           .from("admins")
           .select("id, name, email, created_at")
           .order("created_at", { ascending: false }),
-        supabaseAdmin.from("user_roles").select("user_id, role"),
+        context.supabase.from("user_roles").select("user_id, role"),
       ]);
     if (aErr) throw new Error(aErr.message);
     if (rErr) throw new Error(rErr.message);
@@ -64,63 +63,85 @@ export const createAdmin = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => createSchema.parse(input))
   .handler(async ({ data, context }) => {
     await assertSuper(context.supabase, context.userId);
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
+
+    const SUPABASE_URL = process.env.SUPABASE_URL!;
+    const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY!;
+
+    // Fresh isolated client so signUp doesn't touch the caller's session.
+    const publicClient = createClient<Database>(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY,
+      {
+        auth: {
+          storage: undefined,
+          persistSession: false,
+          autoRefreshToken: false,
+        },
+      },
     );
-    const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
+
+    const { data: signUp, error: signUpErr } = await publicClient.auth.signUp({
       email: data.email,
       password: data.password,
-      email_confirm: true,
-      user_metadata: { name: data.name },
+      options: { data: { name: data.name } },
     });
-    if (error || !created.user) {
-      const msg = error?.message ?? "Falha ao criar usuário";
+
+    if (signUpErr || !signUp.user) {
+      const msg = signUpErr?.message ?? "Falha ao criar usuário";
       if (/already|exists|registered/i.test(msg)) {
         throw new Error(`Já existe uma conta com o e-mail ${data.email}.`);
       }
       throw new Error(msg);
     }
-    const userId = created.user.id;
-    const { error: aErr } = await supabaseAdmin
+
+    const userId = signUp.user.id;
+
+    // Ensure admins row (trigger handle_new_admin already inserts, but keep name/email fresh).
+    const { error: aErr } = await context.supabase
       .from("admins")
       .upsert({ id: userId, name: data.name, email: data.email });
     if (aErr) throw new Error(`Erro ao salvar admin: ${aErr.message}`);
-    const { error: roleErr } = await supabaseAdmin
+
+    const { error: roleErr } = await context.supabase
       .from("user_roles")
       .insert({ user_id: userId, role: data.role });
     if (roleErr) throw new Error(`Erro ao definir papel: ${roleErr.message}`);
+
     return { id: userId };
   });
-
 
 export const updateAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => updateSchema.parse(input))
   .handler(async ({ data, context }) => {
     await assertSuper(context.supabase, context.userId);
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
+
+    if (data.password) {
+      throw new Error(
+        "Redefinição de senha não está disponível neste ambiente. Peça ao admin para usar 'Esqueci minha senha' na tela de login.",
+      );
+    }
+
     if (data.name) {
-      const { error } = await supabaseAdmin
+      const { error } = await context.supabase
         .from("admins")
         .update({ name: data.name })
         .eq("id", data.id);
       if (error) throw new Error(error.message);
     }
-    if (data.password) {
-      const { error } = await supabaseAdmin.auth.admin.updateUserById(data.id, {
-        password: data.password,
-      });
-      if (error) throw new Error(error.message);
-    }
+
     if (data.role) {
-      await supabaseAdmin.from("user_roles").delete().eq("user_id", data.id);
-      const { error } = await supabaseAdmin
+      const { error: delErr } = await context.supabase
+        .from("user_roles")
+        .delete()
+        .eq("user_id", data.id);
+      if (delErr) throw new Error(delErr.message);
+      const { error } = await context.supabase
         .from("user_roles")
         .insert({ user_id: data.id, role: data.role });
       if (error) throw new Error(error.message);
     }
+
     return { ok: true };
   });
 
@@ -132,10 +153,20 @@ export const deleteAdmin = createServerFn({ method: "POST" })
     if (data.id === context.userId) {
       throw new Error("Você não pode excluir a própria conta");
     }
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
-    const { error } = await supabaseAdmin.auth.admin.deleteUser(data.id);
-    if (error) throw new Error(error.message);
+
+    // Revoga acesso removendo papéis e o registro de admin.
+    // Observação: a conta em auth.users permanece órfã (sem permissões).
+    const { error: rErr } = await context.supabase
+      .from("user_roles")
+      .delete()
+      .eq("user_id", data.id);
+    if (rErr) throw new Error(rErr.message);
+
+    const { error: aErr } = await context.supabase
+      .from("admins")
+      .delete()
+      .eq("id", data.id);
+    if (aErr) throw new Error(aErr.message);
+
     return { ok: true };
   });
