@@ -72,8 +72,16 @@ function ConfigPage() {
     e.preventDefault();
     setCreating(true);
     try {
-      await create({ data: { name, email, password, role } });
-      toast.success("Admin criado");
+      const res = await create({ data: { name, email, password, role } });
+      if ((res as { reactivated?: boolean })?.reactivated) {
+        toast.success("Admin reativado", {
+          description:
+            "Este e-mail pertencia a um admin excluído. A conta foi reativada — peça ao usuário para usar 'Esqueci minha senha' no login para definir uma nova senha.",
+          duration: 10000,
+        });
+      } else {
+        toast.success("Admin criado");
+      }
       setName("");
       setEmail("");
       setPassword("");
@@ -97,11 +105,16 @@ function ConfigPage() {
   };
 
 
-  const onDelete = async (id: string) => {
-    if (!confirm("Excluir este admin?")) return;
+  const onDelete = async (id: string, adminEmail: string) => {
+    const ok = confirm(
+      `Excluir o admin ${adminEmail}?\n\nO acesso será revogado imediatamente. O e-mail poderá ser reutilizado depois — ao cadastrar novamente com este mesmo e-mail, a conta será reativada e o usuário deverá usar "Esqueci minha senha" no login para definir uma nova senha.`,
+    );
+    if (!ok) return;
     try {
       await remove({ data: { id } });
-      toast.success("Admin excluído");
+      toast.success("Admin excluído", {
+        description: `${adminEmail} teve o acesso revogado. Para reativar, cadastre novamente com o mesmo e-mail.`,
+      });
       qc.invalidateQueries({ queryKey: ["admins-list"] });
     } catch (err: any) {
       toast.error(err?.message ?? "Erro");
@@ -230,7 +243,7 @@ function ConfigPage() {
                         {!isMe && (
 
                           <button
-                            onClick={() => onDelete(a.id)}
+                            onClick={() => onDelete(a.id, a.email)}
                             className="text-muted-foreground hover:text-destructive"
                             aria-label="Excluir"
                           >

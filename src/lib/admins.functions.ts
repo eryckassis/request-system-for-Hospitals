@@ -64,10 +64,58 @@ export const createAdmin = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     await assertSuper(context.supabase, context.userId);
 
+    const email = data.email.toLowerCase();
+
+    // 1) E-mail já pertence a um admin ATIVO? Bloqueia.
+    const { data: activeAdmin, error: activeErr } = await context.supabase
+      .from("admins")
+      .select("id")
+      .ilike("email", email)
+      .maybeSingle();
+    if (activeErr) throw new Error(activeErr.message);
+    if (activeAdmin) {
+      throw new Error(
+        `Já existe um administrador ativo com o e-mail ${email}.`,
+      );
+    }
+
+    // 2) E-mail pertence a um admin que foi EXCLUÍDO? Reativa reaproveitando a conta de auth.
+    const { data: prior, error: priorErr } = await context.supabase
+      .from("deleted_admins")
+      .select("id, email, name")
+      .ilike("email", email)
+      .maybeSingle();
+    if (priorErr) throw new Error(priorErr.message);
+
+    if (prior) {
+      // Recria os vínculos com o mesmo user_id do auth.users original.
+      const { error: aErr } = await context.supabase
+        .from("admins")
+        .upsert({ id: prior.id, name: data.name, email });
+      if (aErr) throw new Error(`Erro ao reativar admin: ${aErr.message}`);
+
+      // Garante papel único.
+      await context.supabase.from("user_roles").delete().eq("user_id", prior.id);
+      const { error: roleErr } = await context.supabase
+        .from("user_roles")
+        .insert({ user_id: prior.id, role: data.role });
+      if (roleErr) throw new Error(`Erro ao definir papel: ${roleErr.message}`);
+
+      // Limpa o registro de exclusão.
+      await context.supabase.from("deleted_admins").delete().eq("id", prior.id);
+
+      return {
+        id: prior.id,
+        reactivated: true,
+        message:
+          "Este e-mail pertencia a um admin excluído. A conta foi reativada — peça ao usuário para usar 'Esqueci minha senha' na tela de login para definir uma nova senha (a senha informada aqui não é aplicada nessa reativação).",
+      };
+    }
+
+    // 3) E-mail novo: cria via signUp público.
     const SUPABASE_URL = process.env.SUPABASE_URL!;
     const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY!;
 
-    // Fresh isolated client so signUp doesn't touch the caller's session.
     const publicClient = createClient<Database>(
       SUPABASE_URL,
       SUPABASE_PUBLISHABLE_KEY,
@@ -81,25 +129,28 @@ export const createAdmin = createServerFn({ method: "POST" })
     );
 
     const { data: signUp, error: signUpErr } = await publicClient.auth.signUp({
-      email: data.email,
+      email,
       password: data.password,
       options: { data: { name: data.name } },
     });
 
     if (signUpErr || !signUp.user) {
       const msg = signUpErr?.message ?? "Falha ao criar usuário";
-      if (/already|exists|registered/i.test(msg)) {
-        throw new Error(`Já existe uma conta com o e-mail ${data.email}.`);
+      if (/already|exists|registered|duplicate/i.test(msg)) {
+        // Auth já tem esse e-mail mas não temos registro nem em admins nem em deleted_admins:
+        // conta órfã de outra origem. Não conseguimos reaproveitar sem service role.
+        throw new Error(
+          `O e-mail ${email} já está cadastrado no sistema de autenticação, mas não pertence a nenhum administrador. Use outro e-mail ou peça ao dono da conta para acessar via "Esqueci minha senha".`,
+        );
       }
       throw new Error(msg);
     }
 
     const userId = signUp.user.id;
 
-    // Ensure admins row (trigger handle_new_admin already inserts, but keep name/email fresh).
     const { error: aErr } = await context.supabase
       .from("admins")
-      .upsert({ id: userId, name: data.name, email: data.email });
+      .upsert({ id: userId, name: data.name, email });
     if (aErr) throw new Error(`Erro ao salvar admin: ${aErr.message}`);
 
     const { error: roleErr } = await context.supabase
@@ -107,7 +158,7 @@ export const createAdmin = createServerFn({ method: "POST" })
       .insert({ user_id: userId, role: data.role });
     if (roleErr) throw new Error(`Erro ao definir papel: ${roleErr.message}`);
 
-    return { id: userId };
+    return { id: userId, reactivated: false };
   });
 
 export const updateAdmin = createServerFn({ method: "POST" })
@@ -154,8 +205,53 @@ export const deleteAdmin = createServerFn({ method: "POST" })
       throw new Error("Você não pode excluir a própria conta");
     }
 
+    // Snapshot para permitir reativar depois com o mesmo auth user.
+    const { data: adminRow, error: fetchErr } = await context.supabase
+      .from("admins")
+      .select("id, name, email")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (fetchErr) throw new Error(fetchErr.message);
+    if (!adminRow) throw new Error("Administrador não encontrado.");
+
+    // Registra a exclusão (upsert por id para tolerar reexclusão).
+    const { error: dErr } = await context.supabase
+      .from("deleted_admins")
+      .upsert(
+        {
+          id: adminRow.id,
+          email: adminRow.email.toLowerCase(),
+          name: adminRow.name,
+          deleted_at: new Date().toISOString(),
+          deleted_by: context.userId,
+        },
+        { onConflict: "id" },
+      );
+    if (dErr) {
+      // Se houver colisão por e-mail (outra conta já excluída com mesmo e-mail),
+      // sobrescreve o registro antigo mantendo o id atual.
+      if (/duplicate|unique/i.test(dErr.message)) {
+        await context.supabase
+          .from("deleted_admins")
+          .delete()
+          .ilike("email", adminRow.email);
+        const { error: retryErr } = await context.supabase
+          .from("deleted_admins")
+          .insert({
+            id: adminRow.id,
+            email: adminRow.email.toLowerCase(),
+            name: adminRow.name,
+            deleted_by: context.userId,
+          });
+        if (retryErr) throw new Error(retryErr.message);
+      } else {
+        throw new Error(dErr.message);
+      }
+    }
+
     // Revoga acesso removendo papéis e o registro de admin.
-    // Observação: a conta em auth.users permanece órfã (sem permissões).
+    // A conta em auth.users permanece, mas sem permissões — e poderá ser
+    // reativada por um novo cadastro com o mesmo e-mail.
     const { error: rErr } = await context.supabase
       .from("user_roles")
       .delete()
