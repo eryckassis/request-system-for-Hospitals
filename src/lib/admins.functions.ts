@@ -205,8 +205,53 @@ export const deleteAdmin = createServerFn({ method: "POST" })
       throw new Error("Você não pode excluir a própria conta");
     }
 
+    // Snapshot para permitir reativar depois com o mesmo auth user.
+    const { data: adminRow, error: fetchErr } = await context.supabase
+      .from("admins")
+      .select("id, name, email")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (fetchErr) throw new Error(fetchErr.message);
+    if (!adminRow) throw new Error("Administrador não encontrado.");
+
+    // Registra a exclusão (upsert por id para tolerar reexclusão).
+    const { error: dErr } = await context.supabase
+      .from("deleted_admins")
+      .upsert(
+        {
+          id: adminRow.id,
+          email: adminRow.email.toLowerCase(),
+          name: adminRow.name,
+          deleted_at: new Date().toISOString(),
+          deleted_by: context.userId,
+        },
+        { onConflict: "id" },
+      );
+    if (dErr) {
+      // Se houver colisão por e-mail (outra conta já excluída com mesmo e-mail),
+      // sobrescreve o registro antigo mantendo o id atual.
+      if (/duplicate|unique/i.test(dErr.message)) {
+        await context.supabase
+          .from("deleted_admins")
+          .delete()
+          .ilike("email", adminRow.email);
+        const { error: retryErr } = await context.supabase
+          .from("deleted_admins")
+          .insert({
+            id: adminRow.id,
+            email: adminRow.email.toLowerCase(),
+            name: adminRow.name,
+            deleted_by: context.userId,
+          });
+        if (retryErr) throw new Error(retryErr.message);
+      } else {
+        throw new Error(dErr.message);
+      }
+    }
+
     // Revoga acesso removendo papéis e o registro de admin.
-    // Observação: a conta em auth.users permanece órfã (sem permissões).
+    // A conta em auth.users permanece, mas sem permissões — e poderá ser
+    // reativada por um novo cadastro com o mesmo e-mail.
     const { error: rErr } = await context.supabase
       .from("user_roles")
       .delete()
