@@ -227,13 +227,8 @@ function ConfigPage() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => onResetPassword(a.id)}
-                          className="text-xs text-muted-foreground hover:text-foreground underline"
-                        >
-                          Senha
-                        </button>
                         {!isMe && (
+
                           <button
                             onClick={() => onDelete(a.id)}
                             className="text-muted-foreground hover:text-destructive"
